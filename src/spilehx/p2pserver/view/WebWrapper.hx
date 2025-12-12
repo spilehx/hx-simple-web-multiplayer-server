@@ -8,13 +8,13 @@ class WebWrapper {
 	}
 
 	private function onPageLoaded(e) {
-		trace("WebWrapper Page fully loaded");
+		LOG_INFO("WebWrapper Page fully loaded");
 		setup();
 		startWS();
 	}
 
 	private function setup() {
-		addTestBtn();
+		// addTestBtn();
 	}
 
 	private function startWS() {
@@ -30,16 +30,16 @@ class WebWrapper {
 		ViewWebSocketManager.instance.connect();
 	}
 
-	private function addTestBtn() {
-		var button = Browser.document.createButtonElement();
-		button.textContent = "Connect";
-		button.onclick = onTestBtnClick;
-		Browser.document.body.appendChild(button);
-	}
+	// private function addTestBtn() {
+	// 	var button = Browser.document.createButtonElement();
+	// 	button.textContent = "Connect";
+	// 	button.onclick = onTestBtnClick;
+	// 	Browser.document.body.appendChild(button);
+	// }
 
-	private function onTestBtnClick(e) {
-		LOG("Test click");
+	// private function onTestBtnClick(e) {
+	// 	LOG("Test click");
 
 	
-	}
+	// }
 }

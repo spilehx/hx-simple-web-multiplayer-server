@@ -1,7 +1,5 @@
 package spilehx.core.threadservices;
 
-// import squaresfeedserver.managers.SquaresFeedServerErrorManager;
-// import squaresfeedserver.threadservices.Dispatcher.DispatcherMessage;
 import spilehx.core.threadservices.Dispatcher.DispatcherMessage;
 import haxe.Constraints.Function;
 import haxe.Timer;

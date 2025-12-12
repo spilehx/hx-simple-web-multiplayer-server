@@ -21,7 +21,6 @@ class WSServer {
 	public static final instance:WSServer = new WSServer();
 
 	private function new(?maxConnections:Int = 200, ?port:Int = 5000) {
-		// this.objectWatcher = new ObjectWatcher();
 		this.host = getHost();
 		this.maxConnections = maxConnections;
 		this.port = port;
@@ -37,7 +36,6 @@ class WSServer {
 	}
 
 	public function connectionOpened(uuid:String) {
-		// trace("OPENED!!");
 		if (onConnectionOpened != null) {
 			onConnectionOpened(uuid);
 		}
@@ -111,11 +109,7 @@ class WSServerHandler extends WebSocketHandler {
 	}
 
 	private function onOpen() {
-		// trace("SERVER onopen "+id);
 		WSServer.instance.connectionOpened(id);
-		// for (watchedObject in WSServer.instance.objectWatcher.watchedObjects) {
-		// 	sendDataObJect(watchedObject);
-		// }
 	}
 
 	public function sendDataObJect(obj) {

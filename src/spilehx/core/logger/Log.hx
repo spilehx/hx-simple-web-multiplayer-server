@@ -32,13 +32,11 @@ class Log {
 	public static function userMessage(msg:String) {
 		var out:String = "\033[1;" + FG_GREEN + "m" + msg + " \033[0m";
 		platfromSpecificLogCommand(out);
-		LogStream.instance.add(msg);
 	}
 
 	public static function userMessageWarn(msg:String) {
 		var out:String = "\033[1;" + FG_BLUE + "m" + msg + " \033[0m";
 		platfromSpecificLogCommand(out);
-		LogStream.instance.add(msg);
 	}
 
 	public static function logObject(prefix:String, obj:Dynamic) {
@@ -82,7 +80,6 @@ class Log {
 		#end
 
 		platfromSpecificLogCommand(out);
-		LogStream.instance.add(type + ": " + msg);
 	}
 
 	private static function stdErrOut(msg:String) {

@@ -24,7 +24,7 @@ class HTTPServer {
 	}
 
 	public function stopServer() {
-		server.close();//TODO: review if this is enough;
+		server.close();
 	}
 
 	public function addRoute(routeClass:Class<Route>) {

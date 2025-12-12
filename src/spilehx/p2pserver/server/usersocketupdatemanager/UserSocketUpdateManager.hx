@@ -33,11 +33,11 @@ class UserSocketUpdateManager extends ThreadedService {
 	}
 
 	private function onConnectionOpened(wsUUID:String) {
-		LOG("WS Connection opened: " + wsUUID);
+		LOG_INFO("WS Connection opened: " + wsUUID);
 	}
 
 	private function onConnectionClosed(wsUUID:String) {
-		LOG("WS Connection closed: " + wsUUID);
+		LOG_INFO("WS Connection closed: " + wsUUID);
 		onUserDisconnected(wsUUID);
 	}
 
@@ -55,13 +55,13 @@ class UserSocketUpdateManager extends ThreadedService {
 			data: data
 		};
 
-		LOG(data.userID + " ON MESSAGE ");
+		LOG_INFO("WS Message: " + data.userID );
 		// LOG_OBJECT(data);
 		updateUser(wsUUID, udo);
 	}
 
 	private function onUserDisconnected(wsUUID:String) {
-		LOG("onUserDisconnected " + wsUUID);
+		LOG_INFO("onUserDisconnected " + wsUUID);
 		unregisterUser(wsUUID);
 	}
 
@@ -92,7 +92,6 @@ class UserSocketUpdateManager extends ThreadedService {
 		var data:GlobalData = new GlobalData();
 		data.users = users;
 		data.connectedUsers = userCount;
-
 		return data;
 	}
 }
