@@ -1,0 +1,17 @@
+
+## create JS to be included in server bin
+-lib hxWebSockets
+-cp src
+-js dist/main.js
+--main P2PServer
+
+--next
+## Build server
+-lib weblink hxWebSockets
+-cp src
+-main P2PServer
+--hl dist/P2PServer.hl
+
+## cleanup
+--next
+--cmd rm dist/main.js
