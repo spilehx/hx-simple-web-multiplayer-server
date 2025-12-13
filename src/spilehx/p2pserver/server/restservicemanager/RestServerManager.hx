@@ -16,6 +16,7 @@ class RestServerManager extends ThreadedService {
 
 	private function addRoutes() {
 		HTTPServer.instance.addRoute(MainRoute);
+		HTTPServer.instance.addRoute(FrameCodeRoute);
 	}
 
 	override public function kill() {

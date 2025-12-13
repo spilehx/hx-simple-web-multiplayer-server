@@ -1,9 +1,9 @@
 package spilehx.macrotools;
 
-import sys.FileSystem;
-import sys.io.File;
+
 
 class Macros {
+	#if (!js)
 	public static macro function fileAsString(path:String):ExprOf<String> {
 		var content:String = "";
 
@@ -13,6 +13,16 @@ class Macros {
 
 		return macro $v{content};
 	}
+	#end
+// static macro function getDefines() : Expr {
+// 		var defines : Map<String, String> = Context.getDefines();
+// 		// Construct map syntax so we can return it as an expression
+// 		var map : Array<haxe.macro.Expr> = [];
+// 		for (key in defines.keys()) {
+// 		map.push(macro $v{key} => $v{Std.string(defines.get(key))});
+// 		}
+// 		return macro $a{map};
+// 	}
 
 
 // #if (neko || eval || display)
@@ -27,6 +37,7 @@ class Macros {
 // 	}
 
 	// public static function getEnvVar(varName:String):Dynamic {
+	// 	// Compiler.getDefine(varName);
 	// 	/* 
 	// 		used to get env values from the build.hxml, example:
 	// 			-D foo=bar
