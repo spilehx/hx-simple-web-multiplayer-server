@@ -4,27 +4,37 @@ import spilehx.p2pserver.framemessaging.IframeMessaging;
 import js.html.URLSearchParams;
 import js.Browser;
 
-class IframeCommsScriptGenerator {
-	public static final instance:IframeCommsScriptGenerator = new IframeCommsScriptGenerator();
-
+class IframeCommsScript {
+	// public static final instance:IframeCommsScript = new IframeCommsScript();
 	private var parentOrigin:String;
+	private var frameMessaging:IframeMessaging;
 
-	private var messaging:IframeMessaging;
+	@:isVar public var onHostMessage(default, default):Dynamic->Void;
 
-	private function new() {}
+	public function new() {}
+
+	public var TEST_ME:String = "poo";
 
 	public function init() {
-		Browser.window.onload = onPageLoaded;
-	}
+		// 	Browser.window.onload = onPageLoaded;
+		// }
 
-	private function onPageLoaded(e) {
+		// private function onPageLoaded(e) {
 		LOG_INFO("Loaded IFrame comms code");
 		parentOrigin = getUrlParameter("parentOrigin");
 		setupMessaging();
 	}
 
 	private function setupMessaging() {
-		messaging = new IframeMessaging(parentOrigin);
+		frameMessaging = new IframeMessaging(parentOrigin);
+
+		frameMessaging.onMessage = function(data:Dynamic) {
+			if (onHostMessage != null) {
+				onHostMessage(data);
+			}
+		};
+
+		frameMessaging.sendReadyMessage();
 	}
 
 	private function getUrlParameter(paramName:String):Null<String> {

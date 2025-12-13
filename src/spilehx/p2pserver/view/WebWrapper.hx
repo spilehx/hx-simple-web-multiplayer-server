@@ -13,6 +13,7 @@ class WebWrapper {
 	private var contentIframe:IFrameElement;
 	private var frameURL:String;
 	private var pageReady:Bool = false;
+	private var frameMessaging:HostMessaging;
 
 	private function new() {}
 
@@ -65,6 +66,12 @@ class WebWrapper {
 		ViewWebSocketManager.instance.connect();
 	}
 
+	private function onSocketEvent(type:String, data:Dynamic){
+
+	}
+
+
+
 	public function addFrame(url:String) {
 		frameURL = url;
 
@@ -96,9 +103,10 @@ class WebWrapper {
 	private function onIframeLoaded(e){
 		setupIframeComms(contentIframe, frameURL);
 	}
-
+	
 	private function setupIframeComms(iframe:IFrameElement, targetOrigin:String){
-		var host = new HostMessaging(iframe, targetOrigin);
-  		host.sendToIframe("host:hello", { msg: "hi from parent", ts: Date.now().getTime() });
+		frameMessaging = new HostMessaging(iframe, targetOrigin);
+		frameMessaging.sendData({ msg: "hi from parent", ts: Date.now().getTime() });
+  		// host.sendToIframe("host:hello", { msg: "hi from parent", ts: Date.now().getTime() });
 	}
 }

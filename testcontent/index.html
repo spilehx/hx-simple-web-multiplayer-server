@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
-    <head>
-         <script src="http://localhost:1337/framecode"></script> 
-    </head>
+
+<head>
+    <script src="http://localhost:1337/framecode"></script>
+</head>
+
 <body style="background-color:powderblue;">
 
-<h1>Example page</h1>
+    <script>
+
+        function onHostMessage(data) {
+            console.log("onHostMessage-->" + data);
+        }
+
+        window.onload = function () {
+            frameMessaging.onHostMessage = onHostMessage;
+            frameMessaging.init();
+        };
+
+    </script>
+
+
+    <h1>Example page</h1>
 
 
 </body>
-</html>
 
+</html>

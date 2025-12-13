@@ -9,7 +9,13 @@ class P2PServer {
 	// see build.hxml for details
 	// we create the main js and code to be included in the frame for comms
 	static function main() {
-		spilehx.p2pserver.iframecommscode.IframeCommsScriptGenerator.instance.init();
+		var window:Dynamic = js.Browser.window;
+		if (window.frameMessaging == null) {
+			window.frameMessaging = {};
+		}
+		window.frameMessaging = new spilehx.p2pserver.iframecommscode.IframeCommsScript();
+
+		// spilehx.p2pserver.iframecommscode.IframeCommsScript.instance.init();
 	}
 	#elseif (js && !frameCode)
 	static function main() {
