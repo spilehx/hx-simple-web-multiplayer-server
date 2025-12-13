@@ -11,15 +11,11 @@ class IframeCommsScript {
 
 	@:isVar public var onHostMessage(default, default):Dynamic->Void;
 
+	// @:isVar public var sendMessage(default, default):String->Void;
+
 	public function new() {}
 
-	public var TEST_ME:String = "poo";
-
 	public function init() {
-		// 	Browser.window.onload = onPageLoaded;
-		// }
-
-		// private function onPageLoaded(e) {
 		LOG_INFO("Loaded IFrame comms code");
 		parentOrigin = getUrlParameter("parentOrigin");
 		setupMessaging();
@@ -35,6 +31,10 @@ class IframeCommsScript {
 		};
 
 		frameMessaging.sendReadyMessage();
+	}
+
+	public function sendFrameMessage(data:Dynamic) {
+		frameMessaging.sendData(data);
 	}
 
 	private function getUrlParameter(paramName:String):Null<String> {

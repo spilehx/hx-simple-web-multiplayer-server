@@ -10,6 +10,10 @@ class UserSocketUpdateManager extends ThreadedService {
 	private var users:Map<String, UserDataObject>;
 	private var userCount = 0;
 
+	private static final MIN_BROADCAST_UPDATE_INTERVAL:Float = 10;
+
+	private var lastBroadcastUpdate:Float;
+
 	public function new() {
 		super();
 		users = new Map<String, UserDataObject>();
@@ -25,6 +29,7 @@ class UserSocketUpdateManager extends ThreadedService {
 	}
 
 	private function startUserWSServer() {
+		lastBroadcastUpdate = Date.now().getTime();
 		WSServer.instance.onConnectionOpened = onConnectionOpened;
 		WSServer.instance.onConnectionClosed = onConnectionClosed;
 		WSServer.instance.onConnectionError = onConnectionError;
@@ -52,11 +57,9 @@ class UserSocketUpdateManager extends ThreadedService {
 		var udo:UserDataObject = {
 			wsUUID: wsUUID,
 			userID: data.userID,
-			data: data
+			data: data.data
 		};
 
-		LOG_INFO("WS Message: " + data.userID );
-		// LOG_OBJECT(data);
 		updateUser(wsUUID, udo);
 	}
 

@@ -77,7 +77,7 @@ class ViewWebSocketManager {
 	}
 
 	private function onMessage(message:Dynamic) {
-		LOG_INFO("WS new Message");
+		// LOG_INFO("WS new Message");
 		updateGlobalData(message.content);
 		dispatchSocketEvent(SOCKET_EVENT_MESSAGE, globalData);
 		// LOG_OBJECT(globalData);

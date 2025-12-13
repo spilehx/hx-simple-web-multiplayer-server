@@ -25,7 +25,6 @@ class WebWrapper {
 		pageReady = true;
 		LOG_INFO("WebWrapper Page fully loaded");
 		setup();
-		// startWS();
 	}
 
 	private function setup() {
@@ -68,13 +67,12 @@ class WebWrapper {
 	}
 
 	private function onSocketEvent(type:String, data:Dynamic) {
-		if(frameMessaging != null ){
+		if (frameMessaging != null) {
 			frameMessaging.sendData({
 				type: type,
 				data: data
 			});
 		}
-		// frameMessaging.sendData({ msg: "hi from parent", ts: Date.now().getTime() });
 	}
 
 	public function addFrame(url:String) {
@@ -111,8 +109,14 @@ class WebWrapper {
 
 	private function setupIframeComms(iframe:IFrameElement, targetOrigin:String) {
 		frameMessaging = new HostMessaging(iframe, targetOrigin);
+
+		frameMessaging.onMessage = onIFrameMessageData;
 		frameMessaging.onReady = function() {
 			startWS();
 		}
+	}
+
+	private function onIFrameMessageData(data:Dynamic) {
+		ViewWebSocketManager.instance.send(data);
 	}
 }
