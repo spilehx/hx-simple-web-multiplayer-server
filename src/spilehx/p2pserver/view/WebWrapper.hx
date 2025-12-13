@@ -25,7 +25,7 @@ class WebWrapper {
 		pageReady = true;
 		LOG_INFO("WebWrapper Page fully loaded");
 		setup();
-		startWS();
+		// startWS();
 	}
 
 	private function setup() {
@@ -63,14 +63,19 @@ class WebWrapper {
 		var rootUrl:String = wsProtoCall + '://' + js.Browser.window.location.hostname;
 		ViewWebSocketManager.instance.port = 5000;
 		ViewWebSocketManager.instance.url = rootUrl;
+		ViewWebSocketManager.instance.onSocketEvent = onSocketEvent;
 		ViewWebSocketManager.instance.connect();
 	}
 
-	private function onSocketEvent(type:String, data:Dynamic){
-
+	private function onSocketEvent(type:String, data:Dynamic) {
+		if(frameMessaging != null ){
+			frameMessaging.sendData({
+				type: type,
+				data: data
+			});
+		}
+		// frameMessaging.sendData({ msg: "hi from parent", ts: Date.now().getTime() });
 	}
-
-
 
 	public function addFrame(url:String) {
 		frameURL = url;
@@ -92,7 +97,7 @@ class WebWrapper {
 		LOG_INFO("Loading frame: " + frameURL);
 		var iframe:IFrameElement = Browser.document.createIFrameElement();
 		iframe.onload = onIframeLoaded;
-		iframe.src = frameURL+"?parentOrigin="+js.Browser.window.location.origin;
+		iframe.src = frameURL + "?parentOrigin=" + js.Browser.window.location.origin;
 		iframe.width = "100%";
 		iframe.height = "100%";
 		iframe.style.border = "0";
@@ -100,13 +105,14 @@ class WebWrapper {
 		contentIframe = iframe;
 	}
 
-	private function onIframeLoaded(e){
+	private function onIframeLoaded(e) {
 		setupIframeComms(contentIframe, frameURL);
 	}
-	
-	private function setupIframeComms(iframe:IFrameElement, targetOrigin:String){
+
+	private function setupIframeComms(iframe:IFrameElement, targetOrigin:String) {
 		frameMessaging = new HostMessaging(iframe, targetOrigin);
-		frameMessaging.sendData({ msg: "hi from parent", ts: Date.now().getTime() });
-  		// host.sendToIframe("host:hello", { msg: "hi from parent", ts: Date.now().getTime() });
+		frameMessaging.onReady = function() {
+			startWS();
+		}
 	}
 }

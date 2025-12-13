@@ -8,8 +8,14 @@ import spilehx.core.ws.WSClient;
 class ViewWebSocketManager {
 	private static final RECONNECT_DELAY:Int = 1000;
 
+	private static final SOCKET_EVENT_OPEN:String = "SOCKET_OPEN";
+	private static final SOCKET_EVENT_CLOSE:String = "SOCKET_CLOSE";
+	private static final SOCKET_EVENT_ERROR:String = "SOCKET_ERROR";
+	private static final SOCKET_EVENT_MESSAGE:String = "SOCKET_MESSAGE";
+
 	@:isVar public var url(null, default):String;
 	@:isVar public var port(null, default):Int;
+	@:isVar public var onSocketEvent(default, default):String->Dynamic->Void;
 
 	@:isVar public var autoReconnect(default, default):Bool;
 
@@ -47,12 +53,14 @@ class ViewWebSocketManager {
 	private function onOpen() {
 		LOG("WS Connected");
 		connected = true;
+		dispatchSocketEvent(SOCKET_EVENT_OPEN, {});
 		send(); // send empty object just to register the connected user fully
 	}
 
 	private function onClose() {
 		LOG_WARN("WS connection lost");
 		connected = false;
+		dispatchSocketEvent(SOCKET_EVENT_CLOSE, {});
 		ws.close();
 		ws = null;
 
@@ -63,6 +71,7 @@ class ViewWebSocketManager {
 
 	private function onError() {
 		if (connected) {
+			dispatchSocketEvent(SOCKET_EVENT_ERROR, {});
 			LOG_ERROR("WS Error");
 		}
 	}
@@ -70,7 +79,7 @@ class ViewWebSocketManager {
 	private function onMessage(message:Dynamic) {
 		LOG_INFO("WS new Message");
 		updateGlobalData(message.content);
-
+		dispatchSocketEvent(SOCKET_EVENT_MESSAGE, globalData);
 		// LOG_OBJECT(globalData);
 	}
 
@@ -107,5 +116,11 @@ class ViewWebSocketManager {
 			payload.data = data;
 		}
 		ws.send(payload);
+	}
+
+	private function dispatchSocketEvent(type:String, data:Dynamic) {
+		if (onSocketEvent != null) {
+			onSocketEvent(type, data);
+		}
 	}
 }

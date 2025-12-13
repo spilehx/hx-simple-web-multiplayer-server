@@ -9,8 +9,16 @@
 
     <script>
 
-        function onHostMessage(data) {
-            console.log("onHostMessage-->" + data);
+        function onHostMessage(msg) {
+            // console.log("onHostMessage-->" + JSON.stringify(msg));
+            var type = msg.type;
+            console.log(type);
+            if(type == "SOCKET_MESSAGE"){
+                var nUsers = msg.data.connectedUsers;
+                console.log(nUsers);
+                document.getElementById("nusers").innerHTML = "Connected users: "+nUsers;
+            }
+
         }
 
         window.onload = function () {
@@ -21,7 +29,7 @@
     </script>
 
 
-    <h1>Example page</h1>
+    <h1 id="nusers"></h1>
 
 
 </body>

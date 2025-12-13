@@ -19,8 +19,9 @@ class P2PServer {
 	}
 	#elseif (js && !frameCode)
 	static function main() {
-		spilehx.p2pserver.view.WebWrapper.instance.init();
 		spilehx.p2pserver.view.WebWrapper.instance.addFrame("http://localhost:8080");
+		spilehx.p2pserver.view.WebWrapper.instance.init();
+		
 	}
 	#else
 	static function main() {

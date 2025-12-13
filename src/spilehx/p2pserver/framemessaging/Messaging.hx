@@ -1,5 +1,6 @@
 package spilehx.p2pserver.framemessaging;
 
+import haxe.Constraints.Function;
 import js.html.IFrameElement;
 import js.html.MessageEvent;
 import js.Browser;
@@ -14,6 +15,7 @@ class Messaging {
 	@:isVar public var MSG_DATA(default, null):String;
 
 	@:isVar public var onMessage(default, default):Dynamic->Void;
+	@:isVar public var onReady(default, default):Function;
 
 	private var entity:String = "";
 
@@ -51,6 +53,9 @@ class Messaging {
 			if (targetReady == false) {
 				targetReady = true;
 				sendReadyMessage(); // got ready message - respond in kind
+                if (onReady != null) {
+                    onReady();
+                }
 			}
 		} else if (msgType.split(":").pop() == MSG_TYPE_DATA) {
 			if (onMessage != null) {
