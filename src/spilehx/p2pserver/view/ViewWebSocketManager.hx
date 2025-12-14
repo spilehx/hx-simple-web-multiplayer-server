@@ -8,10 +8,10 @@ import spilehx.core.ws.WSClient;
 class ViewWebSocketManager {
 	private static final RECONNECT_DELAY:Int = 1000;
 
-	private static final SOCKET_EVENT_OPEN:String = "SOCKET_OPEN";
-	private static final SOCKET_EVENT_CLOSE:String = "SOCKET_CLOSE";
-	private static final SOCKET_EVENT_ERROR:String = "SOCKET_ERROR";
-	private static final SOCKET_EVENT_MESSAGE:String = "SOCKET_MESSAGE";
+	public static final SOCKET_EVENT_OPEN:String = "SOCKET_OPEN";
+	public static final SOCKET_EVENT_CLOSE:String = "SOCKET_CLOSE";
+	public static final SOCKET_EVENT_ERROR:String = "SOCKET_ERROR";
+	public static final SOCKET_EVENT_MESSAGE:String = "SOCKET_MESSAGE";
 
 	@:isVar public var url(null, default):String;
 	@:isVar public var port(null, default):Int;
@@ -38,6 +38,7 @@ class ViewWebSocketManager {
 		if (ws == null) {
 			setupWS();
 		}
+
 		ws.open();
 	}
 
@@ -58,9 +59,14 @@ class ViewWebSocketManager {
 	}
 
 	private function onClose() {
-		LOG_WARN("WS connection lost");
+		if (connected != false) {
+			LOG_WARN("WS connection lost");
+			// only dispatch on first close event
+			dispatchSocketEvent(SOCKET_EVENT_CLOSE, {});
+		}
+
 		connected = false;
-		dispatchSocketEvent(SOCKET_EVENT_CLOSE, {});
+
 		ws.close();
 		ws = null;
 
@@ -80,7 +86,6 @@ class ViewWebSocketManager {
 		// LOG_INFO("WS new Message");
 		updateGlobalData(message.content);
 		dispatchSocketEvent(SOCKET_EVENT_MESSAGE, globalData);
-		// LOG_OBJECT(globalData);
 	}
 
 	private function updateGlobalData(content:String) {
@@ -91,9 +96,7 @@ class ViewWebSocketManager {
 		for (field in fields) {
 			if (Reflect.hasField(newContentObjData, field)) {
 				var newValue:Dynamic = Reflect.getProperty(newContentObjData, field);
-				// if (newValue != null) {
 				Reflect.setField(globalData, field, newValue);
-				// }
 			}
 		}
 	}
@@ -109,13 +112,15 @@ class ViewWebSocketManager {
 	}
 
 	public function send(data:Dynamic = null) {
-		var payload:Dynamic = {};
-		payload.userID = userID;
+		if (connected == true) {
+			var payload:Dynamic = {};
+			payload.userID = userID;
 
-		if (data != null) {
-			payload.data = data;
+			if (data != null) {
+				payload.data = data;
+			}
+			ws.send(payload);
 		}
-		ws.send(payload);
 	}
 
 	private function dispatchSocketEvent(type:String, data:Dynamic) {

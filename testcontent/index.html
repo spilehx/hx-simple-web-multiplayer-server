@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <script src="http://localhost:1337/framecode"></script>
+    <script src="http://localhost:1337/framecode.js"></script>
 
     <style>
         html {
@@ -44,7 +44,7 @@
 
 </head>
 
-<body style="background-color:powderblue;">
+<body style="background-color:rgb(190, 190, 190);">
 
 
 
@@ -69,8 +69,20 @@
             frameMessaging.init();
 
 
-            // test example
-            document.addEventListener("mousemove", (event) => {
+            // // test example
+            // document.addEventListener("mousemove", (event) => {
+            //     mouseX = event.clientX;
+            //     mouseY = event.clientY;
+
+            //     //   var data = {
+            //     //     mouseX: mouseX,
+            //     //     mouseY: mouseY
+            //     // };
+            //     // frameMessaging.sendFrameMessage(data);
+            // });
+
+
+                     document.addEventListener("click", (event) => {
                 mouseX = event.clientX;
                 mouseY = event.clientY;
 
@@ -117,18 +129,18 @@
 
 
 
-        // function startMousePosUpdate() {
-        //     setInterval(() => {
+        function startMousePosUpdate() {
+            setInterval(() => {
 
-        //         var data = {
-        //             mouseX: mouseX,
-        //             mouseY: mouseY
-        //         };
-        //         frameMessaging.sendFrameMessage(data);
+                var data = {
+                    mouseX: mouseX,
+                    mouseY: mouseY
+                };
+                frameMessaging.sendFrameMessage(data);
 
 
-        //     }, 10);
-        // }
+            }, 1000);
+        }
 
 
 

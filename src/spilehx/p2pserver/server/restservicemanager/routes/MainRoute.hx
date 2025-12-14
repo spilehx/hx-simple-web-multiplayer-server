@@ -1,4 +1,4 @@
-package spilehx.p2pserver.server.restservicemanager;
+package spilehx.p2pserver.server.restservicemanager.routes;
 
 import weblink.Request;
 import spilehx.core.http.RestDataObject;
@@ -23,13 +23,13 @@ class MainRoute extends Route {
 		return "
 		<!DOCTYPE html>
 		<html>
-		<head>
-		 	<script>
-				"+JS_CONTENT+"
-			</script>
-		</head>
-		<body>
-		</body>
+			<head>
+				<script>
+					"+JS_CONTENT+"
+				</script>
+			</head>
+			<body>
+			</body>
 		</html>
 		";
 	}

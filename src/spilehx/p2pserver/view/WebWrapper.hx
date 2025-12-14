@@ -9,8 +9,9 @@ import js.Browser;
 class WebWrapper {
 	public static final instance:WebWrapper = new WebWrapper();
 
-	private var contentFrame:DivElement;
+	private var contentContainer:DivElement;
 	private var contentIframe:IFrameElement;
+	private var connectionErrorIframe:IFrameElement;
 	private var frameURL:String;
 	private var pageReady:Bool = false;
 	private var frameMessaging:HostMessaging;
@@ -28,28 +29,49 @@ class WebWrapper {
 	}
 
 	private function setup() {
-		contentFrame = addContentFrame();
+		setupPage();
+		contentContainer = addContentContainer();
 	}
 
-	private function addContentFrame():DivElement {
-		var document = Browser.document;
-		document.documentElement.style.height = "100%";
-		document.body.style.margin = "0";
-		document.body.style.height = "100%";
-		document.body.style.display = "flex";
+	private function setupPage() {
+		Browser.document.documentElement.style.height = "100%";
+		Browser.document.body.style.margin = "0";
+		Browser.document.body.style.height = "100%";
+		Browser.document.body.style.display = "flex";
+	}
 
-		var div:DivElement = document.createDivElement();
+	private function addContentContainer():DivElement {
+		var div:DivElement = Browser.document.createDivElement();
+
 		div.style.width = "100%";
 		div.style.height = "100%";
+		div.style.position = "relative";
+		div.style.overflow = "hidden";
 
-		// Center content inside the div
-		div.style.display = "flex";
-		div.style.alignItems = "center";
-		div.style.justifyContent = "center";
-		div.style.backgroundColor = "#222";
-
-		document.body.appendChild(div);
+		Browser.document.body.appendChild(div);
 		return div;
+	}
+
+	private function setupContentIframe():IFrameElement {
+		LOG_INFO("Loading frame: " + frameURL);
+		var iframe = setupLayeredIframe(1);
+		iframe.onload = onIframeLoaded;
+		iframe.src = frameURL + "?parentOrigin=" + Browser.window.location.origin;
+		return iframe;
+	}
+
+	private function setupConnectionErrorIframe():IFrameElement {
+		var iframe = setupLayeredIframe(2);
+		iframe.src = Browser.window.location.origin + "/connectionerror";
+		return iframe;
+	}
+
+	private function setConnectionErrorIframeVisible(visible:Bool):Void {
+		var currentlyVisible:Bool = (connectionErrorIframe.style.opacity != "0");
+		if (currentlyVisible != visible) {
+			connectionErrorIframe.style.opacity = visible ? "1" : "0";
+			connectionErrorIframe.style.pointerEvents = visible ? "auto" : "none";
+		}
 	}
 
 	private function startWS() {
@@ -67,7 +89,12 @@ class WebWrapper {
 	}
 
 	private function onSocketEvent(type:String, data:Dynamic) {
-		if (frameMessaging != null) {
+		setConnectionErrorIframeVisible((type == ViewWebSocketManager.SOCKET_EVENT_CLOSE));
+		sendFrameMessage(type, data);
+	}
+
+	private function sendFrameMessage(type:String, data:Dynamic) {
+		if (frameMessaging != null) { // if we have a valid connection to the content iframe
 			frameMessaging.sendData({
 				type: type,
 				data: data
@@ -76,6 +103,7 @@ class WebWrapper {
 	}
 
 	public function addFrame(url:String) {
+		// we will loop the flow on this function if page is not yet ready
 		frameURL = url;
 
 		if (pageReady != true) {
@@ -87,20 +115,11 @@ class WebWrapper {
 				addFrame(frameURL);
 			}
 		} else {
-			setupIframe();
+			// page ready, proceed
+			contentIframe = setupContentIframe();
+			connectionErrorIframe = setupConnectionErrorIframe();
+			setConnectionErrorIframeVisible(true);
 		}
-	}
-
-	private function setupIframe() {
-		LOG_INFO("Loading frame: " + frameURL);
-		var iframe:IFrameElement = Browser.document.createIFrameElement();
-		iframe.onload = onIframeLoaded;
-		iframe.src = frameURL + "?parentOrigin=" + js.Browser.window.location.origin;
-		iframe.width = "100%";
-		iframe.height = "100%";
-		iframe.style.border = "0";
-		contentFrame.appendChild(iframe);
-		contentIframe = iframe;
 	}
 
 	private function onIframeLoaded(e) {
@@ -118,5 +137,27 @@ class WebWrapper {
 
 	private function onIFrameMessageData(data:Dynamic) {
 		ViewWebSocketManager.instance.send(data);
+	}
+
+	private function setupLayeredIframe(zIndex:Int):IFrameElement {
+		var iframe:IFrameElement = Browser.document.createIFrameElement();
+
+		iframe.style.position = "absolute";
+		iframe.style.top = "0";
+		iframe.style.left = "0";
+		iframe.style.right = "0";
+		iframe.style.bottom = "0";
+		iframe.style.width = "100%";
+		iframe.style.height = "100%";
+		iframe.style.zIndex = Std.string(zIndex);
+
+		iframe.style.border = "0";
+		iframe.setAttribute("frameborder", "0");
+		iframe.setAttribute("scrolling", "no");
+		iframe.style.overflow = "hidden";
+		iframe.style.display = "block";
+
+		contentContainer.appendChild(iframe);
+		return iframe;
 	}
 }

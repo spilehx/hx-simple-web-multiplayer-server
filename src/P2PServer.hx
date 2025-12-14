@@ -14,8 +14,6 @@ class P2PServer {
 			window.frameMessaging = {};
 		}
 		window.frameMessaging = new spilehx.p2pserver.iframecommscode.IframeCommsScript();
-
-		// spilehx.p2pserver.iframecommscode.IframeCommsScript.instance.init();
 	}
 	#elseif (js && !frameCode)
 	static function main() {
