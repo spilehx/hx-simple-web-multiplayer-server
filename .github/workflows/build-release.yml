@@ -1,0 +1,30 @@
+name: Build On New Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Run release build script
+        run: |
+          chmod +x ./build-release.sh
+          ./build-release.sh
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: release/**
