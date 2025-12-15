@@ -39,6 +39,10 @@ $ hl P2PServer.hl
 
 - You can now open a browser to see the Debug interface http://localhost:1337, open multiple browsers and see the live connections
 
+<div align="center" width="100%">
+    <img src="https://raw.githubusercontent.com/spilehx/hx-simple-web-multiplayer-server/main/docs/demo.gif" width="900" alt="" />
+</div>
+
 - Running with the -url arg will load your webpage in the harness
 
 ```console
