@@ -1,8 +1,16 @@
 
-## create JS to be included in server bin
+## create JS to be included in server bin for main host page
 -lib hxWebSockets
 -cp src
 -js dist/main.js
+--main P2PServer
+
+## create JS to be included in server bin to be served for iframe
+--next
+-D frameCode=true
+-lib hxWebSockets
+-cp src
+-js dist/frame.js
 --main P2PServer
 
 --next
@@ -15,3 +23,4 @@
 ## cleanup
 --next
 --cmd rm dist/main.js
+--cmd rm dist/frame.js
