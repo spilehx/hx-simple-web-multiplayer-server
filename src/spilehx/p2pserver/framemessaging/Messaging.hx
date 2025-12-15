@@ -38,11 +38,13 @@ class Messaging {
 
 	function onMessageReceived(e:MessageEvent):Void {
 		if (e.origin != targetOrigin) {
+			LOG_ERROR("Origin mismatch "+e.origin+" != "+targetOrigin);
 			return;
 		}
 
 		var env:Dynamic = e.data;
 		if (env == null || env.type == null) {
+			LOG_ERROR("Null data");
 			return;
 		}
 

@@ -17,12 +17,14 @@ class P2PServer {
 	}
 	#elseif (js && !frameCode)
 	static function main() {
-		spilehx.p2pserver.view.WebWrapper.instance.addFrame("http://localhost:8080");
 		spilehx.p2pserver.view.WebWrapper.instance.init();
-		
 	}
 	#else
 	static function main() {
+
+		spilehx.p2pserver.server.settingsmanager.SettingsManager.instance.parseApplicationArguments();
+		spilehx.p2pserver.server.settingsmanager.SettingsManager.instance.init();
+
 		USER_MESSAGE("Starting P2PServerController", true);
 		var controller:spilehx.p2pserver.P2PServerController = new spilehx.p2pserver.P2PServerController();
 		controller.init();

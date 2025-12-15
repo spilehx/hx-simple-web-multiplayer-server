@@ -1,5 +1,6 @@
 package spilehx.p2pserver;
 
+import spilehx.p2pserver.server.settingsmanager.SettingsManager;
 import spilehx.p2pserver.server.usersocketupdatemanager.UserSocketUpdateManager;
 import spilehx.p2pserver.server.restservicemanager.RestServerManager;
 import spilehx.core.threadservices.ThreadedServiceErrorManager;
@@ -10,7 +11,7 @@ class P2PServerController {
 	public function new() {}
 
 	public function init() {
-		GlobalLoggingSettings.settings.verbose = true;
+		GlobalLoggingSettings.settings.verbose = (SettingsManager.instance.settings.verboseLogging == "true");
 		ThreadedServiceManager.instance.onTooManyThreadErrors = ThreadedServiceErrorManager.onTooManyThreadErrors;
 		initManagers();
 	}

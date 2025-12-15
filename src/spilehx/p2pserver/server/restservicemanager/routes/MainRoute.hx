@@ -1,5 +1,6 @@
 package spilehx.p2pserver.server.restservicemanager.routes;
 
+import spilehx.p2pserver.server.settingsmanager.SettingsManager;
 import weblink.Request;
 import spilehx.core.http.RestDataObject;
 import weblink.Weblink;
@@ -25,6 +26,8 @@ class MainRoute extends Route {
 		<html>
 			<head>
 				<script>
+					window.CONTENT_URL = '"+SettingsManager.instance.settings.frameUrl+"';
+					window.VERBOSE_LOGGING = '"+SettingsManager.instance.settings.verboseLogging+"';
 					"+JS_CONTENT+"
 				</script>
 			</head>

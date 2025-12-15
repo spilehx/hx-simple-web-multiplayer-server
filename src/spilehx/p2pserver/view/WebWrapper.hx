@@ -1,5 +1,8 @@
 package spilehx.p2pserver.view;
 
+import js.html.URL;
+import spilehx.core.logger.GlobalLoggingSettings;
+import js.Syntax;
 import spilehx.p2pserver.framemessaging.HostMessaging;
 import js.html.IFrameElement;
 import haxe.Timer;
@@ -14,12 +17,44 @@ class WebWrapper {
 	private var connectionErrorIframe:IFrameElement;
 	private var frameURL:String;
 	private var pageReady:Bool = false;
+	private var usingDebugContent:Bool = false;
 	private var frameMessaging:HostMessaging;
+	private var windowObject:Dynamic = Browser.window;
 
 	private function new() {}
 
 	public function init() {
+		GlobalLoggingSettings.settings.verbose = (windowObject.VERBOSE_LOGGING == "true");
+		setFrameURL(getFrameUrl());
 		Browser.window.onload = onPageLoaded;
+	}
+
+	private function getFrameUrl():String {
+		// windowObject.CONTENT_URL is url of frame provided by server via cli args
+		if (windowObject.CONTENT_URL.length > 0) {
+			if (isValidUrl(windowObject.CONTENT_URL)) {
+				return windowObject.CONTENT_URL;
+			} else {
+				LOG_ERROR("Invalid URL submitted: " + windowObject.CONTENT_URL);
+			}
+		}
+
+		LOG_INFO("Loading debug content");
+		usingDebugContent = true;
+
+		return Browser.window.location.origin + "/debugclient.html";
+	}
+
+	private function isValidUrl(value:String):Bool {
+		if (value == null || value == "")
+			return false;
+
+		return try {
+			Syntax.code("new URL({0})", value);
+			true;
+		} catch (e:Dynamic) {
+			false;
+		}
 	}
 
 	private function onPageLoaded(e) {
@@ -56,7 +91,12 @@ class WebWrapper {
 		LOG_INFO("Loading frame: " + frameURL);
 		var iframe = setupLayeredIframe(1);
 		iframe.onload = onIframeLoaded;
-		iframe.src = frameURL + "?parentOrigin=" + Browser.window.location.origin;
+		
+		if(usingDebugContent == true){
+			iframe.src = frameURL;
+		} else{
+			iframe.src = frameURL+ "?parentOrigin=" + Browser.window.location.origin;
+		}
 		return iframe;
 	}
 
@@ -102,7 +142,7 @@ class WebWrapper {
 		}
 	}
 
-	public function addFrame(url:String) {
+	private function setFrameURL(url:String) {
 		// we will loop the flow on this function if page is not yet ready
 		frameURL = url;
 
@@ -112,7 +152,7 @@ class WebWrapper {
 			loopDelay.run = function() {
 				loopDelay.stop();
 				loopDelay = null;
-				addFrame(frameURL);
+				setFrameURL(frameURL);
 			}
 		} else {
 			// page ready, proceed
@@ -123,7 +163,7 @@ class WebWrapper {
 	}
 
 	private function onIframeLoaded(e) {
-		setupIframeComms(contentIframe, frameURL);
+		setupIframeComms(contentIframe, new URL(contentIframe.src).origin);
 	}
 
 	private function setupIframeComms(iframe:IFrameElement, targetOrigin:String) {

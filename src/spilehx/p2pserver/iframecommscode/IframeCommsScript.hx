@@ -1,23 +1,28 @@
 package spilehx.p2pserver.iframecommscode;
 
+import spilehx.core.logger.GlobalLoggingSettings;
 import spilehx.p2pserver.framemessaging.IframeMessaging;
 import js.html.URLSearchParams;
 import js.Browser;
 
 class IframeCommsScript {
-	// public static final instance:IframeCommsScript = new IframeCommsScript();
 	private var parentOrigin:String;
 	private var frameMessaging:IframeMessaging;
+	private var windowObject:Dynamic = Browser.window;
 
 	@:isVar public var onHostMessage(default, default):Dynamic->Void;
 
-	// @:isVar public var sendMessage(default, default):String->Void;
-
 	public function new() {}
 
-	public function init() {
+	public function init(parentOrigin:String = null) {
+		GlobalLoggingSettings.settings.verbose = (windowObject.VERBOSE_LOGGING != "false");
 		LOG_INFO("Loaded IFrame comms code");
-		parentOrigin = getUrlParameter("parentOrigin");
+		if (parentOrigin != null) {
+			this.parentOrigin = parentOrigin;
+		} else {
+			this.parentOrigin = getUrlParameter("parentOrigin");
+		}
+
 		setupMessaging();
 	}
 
