@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTPUT_FOLDER="./release"
-IMAGE_NAME="rfidtriggermanagerbuildrelease"
+IMAGE_NAME="p2pserverbuildrelease"
 
 ensureOutputFolder(){
     echo "Creating empty release folder"
