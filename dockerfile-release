@@ -42,11 +42,10 @@ RUN rm -rf /hashlink
 WORKDIR /app
 COPY . /app
 
+RUN haxelib git hxWebSockets https://github.com/jefvel/hxWebSockets  
 RUN haxelib git weblink https://github.com/PXshadow/weblink 
 RUN haxelib git hashlink https://github.com/HaxeFoundation/hashlink
 RUN haxelib dev hashlink $(haxelib libpath hashlink:git)/other/haxelib
-
-RUN haxelib install hxWebSockets 
 RUN haxe build.hxml
 
 ## get output bin
