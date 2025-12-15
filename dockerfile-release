@@ -1,0 +1,66 @@
+# This dockerfile is for creating realese executables 
+# The first stage will build a hashlink hl file and a linux bin
+# second stage will just take these files and copy to 
+# a folder called /release inside the container and exit
+# To get the relase output, simply mount a volume over /release
+
+
+FROM haxe:latest AS haxebuild
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+
+# ## Install hashlink deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ \
+    libmbedtls-dev \
+    libopenal-dev \
+    libpng-dev \
+    libsdl2-dev \
+    libturbojpeg-dev \
+    libuv1-dev \
+    libvorbis-dev \
+    libsqlite3-dev \
+    libglu1-mesa-dev \
+    libgl-dev \
+    make
+
+## pull and build hashlink
+WORKDIR /hashlink
+RUN git clone https://github.com/HaxeFoundation/hashlink .
+RUN make && make install
+
+## clean up
+RUN cd /
+RUN rm -rf /hashlink
+
+WORKDIR /app
+COPY . /app
+
+RUN haxelib git weblink https://github.com/PXshadow/weblink 
+RUN haxelib git hashlink https://github.com/HaxeFoundation/hashlink
+RUN haxelib dev hashlink $(haxelib libpath hashlink:git)/other/haxelib
+
+RUN haxelib install hxWebSockets 
+RUN haxe build.hxml
+
+## get output bin
+RUN cp /app/dist/out/P2PServer /app/dist/P2PServer
+## clean up
+RUN rm -rf /app/dist/out
+
+WORKDIR /release
+RUN cp -r /app/dist/. /release/
+
+# ---- Exporter stage ----
+FROM alpine:latest
+WORKDIR /
+# copy build results into /output inside the runtime container
+COPY --from=haxebuild /release /output
+# Copy output into mounted volume when container runs
+CMD sh -c "mkdir -p /release && cp -r /output/. /release/ && echo '✅ Artifacts copied to release folder'"

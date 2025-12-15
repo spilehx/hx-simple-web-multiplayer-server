@@ -20,6 +20,15 @@
 -main P2PServer
 --hl dist/P2PServer.hl
 
+# Buid hashlink C code
+--next
+-lib weblink hxWebSockets
+-cp src
+-main P2PServer
+-D hlgen.makefile=make
+--hl dist/out/P2PServer.c
+
+
 ## cleanup
 --next
 --cmd rm dist/main.js
