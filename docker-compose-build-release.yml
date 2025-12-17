@@ -2,6 +2,6 @@ services:
   p2pserverbuildrelease:
     build:
       context: .
-      dockerfile: dockerfile-release
+      dockerfile: dockerfile-build-release
     volumes:
       - ./release:/release
