@@ -49,9 +49,9 @@ RUN haxelib dev hashlink $(haxelib libpath hashlink:git)/other/haxelib
 RUN haxe build.hxml
 
 ## get output bin
-RUN cp /app/dist/out/P2PServer /app/dist/P2PServer
+# RUN cp /app/dist/out/P2PServer /app/dist/P2PServer
 ## clean up
-RUN rm -rf /app/dist/out
+# RUN rm -rf /app/dist/out
 
 WORKDIR /release
 RUN cp -r /app/dist/. /release/

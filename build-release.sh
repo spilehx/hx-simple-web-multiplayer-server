@@ -14,7 +14,7 @@ ensureOutputFolder(){
 
 buildReleaseImage() {
     echo "Building release image"
-    docker build -f dockerfile-release -t $IMAGE_NAME .
+    docker build -f dockerfile-build-release -t $IMAGE_NAME .
 }
 
 getRelease() {
