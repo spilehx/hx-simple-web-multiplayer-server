@@ -1,0 +1,7 @@
+services:
+  hxsimplewebmultiplayerserver:
+    container_name: hx-simple-web-multiplayer-server
+    image: ghcr.io/spilehx/hx-simple-web-multiplayer-server:latest
+    # image: hxsimplewebmultiplayerserver:latest
+    ports:
+      - "8081:80"

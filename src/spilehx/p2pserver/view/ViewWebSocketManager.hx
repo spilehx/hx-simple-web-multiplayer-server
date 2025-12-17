@@ -15,11 +15,12 @@ class ViewWebSocketManager {
 
 	@:isVar public var url(null, default):String;
 	@:isVar public var port(null, default):Int;
+	@:isVar public var path(null, default):String;
 	@:isVar public var onSocketEvent(default, default):String->Dynamic->Void;
 
 	@:isVar public var autoReconnect(default, default):Bool;
 
-	private var path:String;
+	private var fullPath:String;
 	private var ws:WSClient;
 	private var connected:Bool;
 	private var userID:String;
@@ -43,8 +44,8 @@ class ViewWebSocketManager {
 	}
 
 	private function setupWS() {
-		path = url + ":" + port;
-		ws = new WSClient(path, false);
+		fullPath = url + ":" + port + path;
+		ws = new WSClient(fullPath, false);
 		ws.onopen = onOpen;
 		ws.onclose = onClose;
 		ws.onerror = onError;
