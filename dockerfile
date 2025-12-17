@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 
 WORKDIR /app
@@ -16,7 +16,6 @@ RUN haxelib git weblink https://github.com/PXshadow/weblink
 RUN haxelib install hashlink
 
 RUN haxe build.hxml
-
 
 ## pull hashlink
 WORKDIR /hashlink
@@ -38,7 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     libglu1-mesa-dev \
     libgl-dev \
-    make
+    make \
+    nginx
 
 WORKDIR /hashlink
 COPY --from=build /hashlink /hashlink
@@ -48,7 +48,14 @@ RUN cd /
 RUN rm -rf /hashlink
 
 
+COPY --from=build /app/nginx/nginx.conf /etc/nginx/nginx.conf
+
 WORKDIR /app
 COPY --from=build /app/dist /app
 
-ENTRYPOINT ["hl", "/app/P2PServer.hl"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+EXPOSE 80
+
+ENTRYPOINT ["/entrypoint.sh"]

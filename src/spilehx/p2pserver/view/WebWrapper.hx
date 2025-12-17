@@ -21,12 +21,28 @@ class WebWrapper {
 	private var frameMessaging:HostMessaging;
 	private var windowObject:Dynamic = Browser.window;
 
+	private var socketConnection:SocketConnection;
+	private var dockerSocketConnection:SocketConnection;
+
 	private function new() {}
 
 	public function init() {
 		GlobalLoggingSettings.settings.verbose = (windowObject.VERBOSE_LOGGING == "true");
 		setFrameURL(getFrameUrl());
 		Browser.window.onload = onPageLoaded;
+		setSocketConnection();
+	}
+
+	private function setSocketConnection() {
+		var wsProtoCall:String = "ws";
+
+		if (js.Browser.window.location.protocol.indexOf("https") > -1) {
+			wsProtoCall = "wss";
+		}
+
+		var rootUrl:String = wsProtoCall + '://' + js.Browser.window.location.hostname;
+		socketConnection = new SocketConnection(rootUrl, 5000);
+		dockerSocketConnection = new SocketConnection(rootUrl, 8081, "/feed/");
 	}
 
 	private function getFrameUrl():String {
@@ -91,11 +107,11 @@ class WebWrapper {
 		LOG_INFO("Loading frame: " + frameURL);
 		var iframe = setupLayeredIframe(1);
 		iframe.onload = onIframeLoaded;
-		
-		if(usingDebugContent == true){
+
+		if (usingDebugContent == true) {
 			iframe.src = frameURL;
-		} else{
-			iframe.src = frameURL+ "?parentOrigin=" + Browser.window.location.origin;
+		} else {
+			iframe.src = frameURL + "?parentOrigin=" + Browser.window.location.origin;
 		}
 		return iframe;
 	}
@@ -115,15 +131,17 @@ class WebWrapper {
 	}
 
 	private function startWS() {
-		var wsProtoCall:String = "ws";
+		var connection:SocketConnection;
 
-		if (js.Browser.window.location.protocol.indexOf("https") > -1) {
-			wsProtoCall = "wss";
+		if (windowObject.IS_DOCKER == "true") {
+			connection = dockerSocketConnection;
+		} else {
+			connection = socketConnection;
 		}
 
-		var rootUrl:String = wsProtoCall + '://' + js.Browser.window.location.hostname;
-		ViewWebSocketManager.instance.port = 5000;
-		ViewWebSocketManager.instance.url = rootUrl;
+		ViewWebSocketManager.instance.port = connection.port;
+		ViewWebSocketManager.instance.path = connection.path;
+		ViewWebSocketManager.instance.url = connection.rootUrl;
 		ViewWebSocketManager.instance.onSocketEvent = onSocketEvent;
 		ViewWebSocketManager.instance.connect();
 	}
@@ -199,5 +217,17 @@ class WebWrapper {
 
 		contentContainer.appendChild(iframe);
 		return iframe;
+	}
+}
+
+class SocketConnection {
+	@:isVar public var rootUrl(default, null):String;
+	@:isVar public var port(default, null):Int;
+	@:isVar public var path(default, null):String;
+
+	public function new(rootUrl:String, port:Int, path:String = "") {
+		this.rootUrl = rootUrl;
+		this.port = port;
+		this.path = path;
 	}
 }

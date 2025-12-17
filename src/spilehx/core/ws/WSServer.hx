@@ -81,7 +81,7 @@ class WSServer {
 	function getHost():String {
 		// for setting the WS Server host based on where deployed
 		var host:String;
-		if (isRunningInDocker()) {
+		if (WSServer.isRunningInDocker()) {
 			host = "0.0.0.0";
 		} else {
 			host = "localhost";
@@ -90,7 +90,7 @@ class WSServer {
 		return host;
 	}
 
-	function isRunningInDocker():Bool {
+	public static function isRunningInDocker():Bool {
 		// for detecting if a HL app is running in docker
 		// often used as a 'trick' to decide if the app is deployed (ie live)
 		var pathToDockerEnv:String = "/.dockerenv";
