@@ -1,7 +1,7 @@
 package spilehx.p2pserver;
 
 import spilehx.p2pserver.server.settingsmanager.SettingsManager;
-import spilehx.p2pserver.server.usersocketupdatemanager.UserSocketUpdateManager;
+import spilehx.p2pserver.server.socketupdatemanager.SocketUpdateManager;
 import spilehx.p2pserver.server.restservicemanager.RestServerManager;
 import spilehx.core.threadservices.ThreadedServiceErrorManager;
 import spilehx.core.threadservices.ThreadedServiceManager;
@@ -18,7 +18,7 @@ class P2PServerController {
 
 	private function initManagers() {
 		ThreadedServiceManager.instance.addService(RestServerManager, [], "RestServerManager", onCriticalServiceExit);
-		ThreadedServiceManager.instance.addService(UserSocketUpdateManager, [], "UserSocketUpdateManager", onCriticalServiceExit);
+		ThreadedServiceManager.instance.addService(SocketUpdateManager, [], "SocketUpdateManager", onCriticalServiceExit);
 	}
 
 	private function onCriticalServiceExit() {

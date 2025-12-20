@@ -1,4 +1,4 @@
-package spilehx.p2pserver.server.usersocketupdatemanager;
+package spilehx.p2pserver.server.socketupdatemanager;
 
 import haxe.Json;
 import spilehx.p2pserver.dataobjects.UserDataObject;
@@ -6,7 +6,7 @@ import spilehx.p2pserver.dataobjects.GlobalData;
 import spilehx.core.ws.WSServer;
 import spilehx.core.threadservices.ThreadedServiceManager.ThreadedService;
 
-class UserSocketUpdateManager extends ThreadedService {
+class SocketUpdateManager extends ThreadedService {
 	private var users:Map<String, UserDataObject>;
 	private var userCount = 0;
 

@@ -21,8 +21,6 @@ class P2PServer {
 	}
 	#else
 	static function main() {
-
-		spilehx.p2pserver.server.settingsmanager.SettingsManager.instance.parseApplicationArguments();
 		spilehx.p2pserver.server.settingsmanager.SettingsManager.instance.init();
 
 		USER_MESSAGE("Starting P2PServerController", true);
