@@ -54,17 +54,17 @@ class SocketManager extends ThreadedService {
 	}
 
 	private function onConnectionOpened(wsUUID:String) {
-		LOG_INFO("WS Connection opened: " + wsUUID);
+		// LOG_INFO("WS Connection opened: " + wsUUID);
 		onUserConnected(wsUUID);
 	}
 
 	private function onConnectionClosed(wsUUID:String) {
-		LOG_INFO("WS Connection closed: " + wsUUID);
+		// LOG_INFO("WS Connection closed: " + wsUUID);
 		onUserDisconnected(wsUUID);
 	}
 
 	private function onConnectionError(wsUUID:String) {
-		LOG_ERROR("WS Connection error: " + wsUUID);
+		LOG_WARN("WS Connection error: " + wsUUID);
 		onUserDisconnected(wsUUID);
 	}
 
