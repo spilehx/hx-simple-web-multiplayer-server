@@ -54,17 +54,17 @@ class SocketManager extends ThreadedService {
 	}
 
 	private function onConnectionOpened(wsUUID:String) {
-		LOG_INFO("WS Connection opened: " + wsUUID);
+		// LOG_INFO("WS Connection opened: " + wsUUID);
 		onUserConnected(wsUUID);
 	}
 
 	private function onConnectionClosed(wsUUID:String) {
-		LOG_INFO("WS Connection closed: " + wsUUID);
+		// LOG_INFO("WS Connection closed: " + wsUUID);
 		onUserDisconnected(wsUUID);
 	}
 
 	private function onConnectionError(wsUUID:String) {
-		LOG_ERROR("WS Connection error: " + wsUUID);
+		USER_MESSAGE_WARN("WS Connection error: " + wsUUID, true);
 		onUserDisconnected(wsUUID);
 	}
 
@@ -74,12 +74,12 @@ class SocketManager extends ThreadedService {
 	}
 
 	private function onUserDisconnected(wsUUID:String) {
-		LOG_INFO("onUserDisconnected " + wsUUID);
+		USER_MESSAGE("onUserDisconnected " + wsUUID);
 		socketManagerDataHelper.unregisterUser(wsUUID);
 	}
 
 	private function onUserConnected(wsUUID:String) {
-		LOG_INFO("onUserConnected " + wsUUID);
+		USER_MESSAGE("onUserConnected " + wsUUID);
 		socketManagerDataHelper.registerUser(wsUUID);
 	}
 }

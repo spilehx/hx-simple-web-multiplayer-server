@@ -76,6 +76,7 @@ class SocketManagerDataHelper {
 		if (users.exists(wsUUID) == true) {
 			users.remove(wsUUID);
 			userCount--;
+			sendToAllUsers(getGlobalMessage());
 		}
 	}
 

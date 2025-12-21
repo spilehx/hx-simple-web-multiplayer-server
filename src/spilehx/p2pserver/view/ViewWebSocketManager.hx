@@ -45,7 +45,15 @@ class ViewWebSocketManager {
 	}
 
 	private function setupWS() {
-		fullPath = url + ":" + port + path;
+		var urlParts:Array<String> = new Array<String>();
+		urlParts.push(url);
+		if(port != null){
+			urlParts.push(":"+port);
+		}
+
+		urlParts.push(path);
+		fullPath = urlParts.join("");
+
 		ws = new WSClient(fullPath, false);
 		ws.onopen = onOpen;
 		ws.onclose = onClose;

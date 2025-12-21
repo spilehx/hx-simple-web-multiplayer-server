@@ -45,7 +45,7 @@ class WebWrapper {
 
 		var rootUrl:String = wsProtoCall + '://' + js.Browser.window.location.hostname;
 		socketConnection = new SocketConnection(rootUrl, 5000);
-		dockerSocketConnection = new SocketConnection(rootUrl, 8081, "/feed/");
+		dockerSocketConnection = new SocketConnection(rootUrl, null, "/feed/");
 	}
 
 	private function getFrameUrl():String {
@@ -232,7 +232,7 @@ class SocketConnection {
 	@:isVar public var port(default, null):Int;
 	@:isVar public var path(default, null):String;
 
-	public function new(rootUrl:String, port:Int, path:String = "") {
+	public function new(rootUrl:String, port:Int = null, path:String = "") {
 		this.rootUrl = rootUrl;
 		this.port = port;
 		this.path = path;

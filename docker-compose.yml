@@ -1,7 +1,10 @@
 services:
   hxsimplewebmultiplayerserver:
     container_name: hx-simple-web-multiplayer-server
-    image: ghcr.io/spilehx/hx-simple-web-multiplayer-server:latest
-    # image: hxsimplewebmultiplayerserver:latest
+    # image: ghcr.io/spilehx/hx-simple-web-multiplayer-server:latest
+    image: hxsimplewebmultiplayerserver:latest
     ports:
       - "8081:80"
+    environment:
+      # FRAME_URL: "https://mysite.com/client.html" # URL to Client to load in iframe - if not included will load debug page
+      VERBOSE_LOGGING: "true"   # "true" or "false" - Show verbose logging
