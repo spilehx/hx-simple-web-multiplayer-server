@@ -81,7 +81,8 @@ class DebugContentRoute extends Route {
 							var data = payload.data;
 							var users = data.users;
 							populateTable(users);
-						
+
+							updateCanvasFromData(users);						
 						}
 						
 						function populateTable(data){
@@ -174,7 +175,6 @@ class DebugContentRoute extends Route {
 						}
 
 						function drawDot(x, y, r = 4, color = "red") {
-							console.log(x);
 							ctx.beginPath();
 							ctx.fillStyle = color;
 							ctx.arc(x, y, r, 0, Math.PI * 2);
