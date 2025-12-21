@@ -8,10 +8,8 @@ import spilehx.core.ws.WSServer;
 import spilehx.core.threadservices.ThreadedServiceManager.ThreadedService;
 
 class SocketManager extends ThreadedService {
+	private static final MESSAGE_HEARTBEAT_INTERVAL:Int = 10;
 	private var socketManagerDataHelper:SocketManagerDataHelper;
-
-	private static final MESSAGE_HEARTBEAT_INTERVAL:Int = 1000;
-
 	private var messageHeartbeat:Timer;
 
 	public function new() {

@@ -1,5 +1,6 @@
 package spilehx.p2pserver.iframecommscode;
 
+import spilehx.p2pserver.dataobjects.socketmessage.GlobalUpdateMessage;
 import spilehx.core.logger.GlobalLoggingSettings;
 import spilehx.p2pserver.framemessaging.IframeMessaging;
 import js.html.URLSearchParams;
@@ -38,8 +39,14 @@ class IframeCommsScript {
 		frameMessaging.sendReadyMessage();
 	}
 
-	public function sendFrameMessage(data:Dynamic) {
-		frameMessaging.sendData(data);
+	public function sendGlobalMessage(data:Dynamic) {
+		var globalUpdateMessage:GlobalUpdateMessage = new GlobalUpdateMessage();
+		globalUpdateMessage.data = data;
+		frameMessaging.sendData(globalUpdateMessage);
+	}
+
+	public function sendP2PMessage(data:Dynamic, userID:String) {
+		// /	NOT IMPLEMNTED = nut sent p2p msg here
 	}
 
 	private function getUrlParameter(paramName:String):Null<String> {

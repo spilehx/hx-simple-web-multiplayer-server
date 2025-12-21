@@ -3,6 +3,8 @@ package spilehx.p2pserver.view;
 import spilehx.p2pserver.dataobjects.socketmessage.KeepAliveMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.RegisterUserMessage;
+import spilehx.p2pserver.dataobjects.socketmessage.GlobalUpdateMessage;
+import spilehx.p2pserver.dataobjects.socketmessage.GlobalMessage;
 import haxe.Json;
 import spilehx.p2pserver.dataobjects.GlobalData;
 import haxe.Timer;
@@ -83,26 +85,17 @@ class ViewWebSocketManager {
 	}
 
 	private function onMessage(message:Dynamic) {
-		LOG_INFO("WS new Message");
+	
 		var newContentObj:Dynamic = Json.parse(message.content).data;
+			LOG_INFO("WS new Message"+newContentObj.messageType);
 		if (newContentObj.messageType == new RegisterUserMessage().messageType) {
 			onRecieveRegisterUserMessage(newContentObj);
 		} else if (newContentObj.messageType == new KeepAliveMessage().messageType) {
 			onRecieveKeepAliveMessage(newContentObj);
+		}else if (newContentObj.messageType == new GlobalMessage().messageType) {
+			onRecieveGlobalMessage(newContentObj);
 		}
 	}
-
-	// private function updateGlobalData(content:String) {
-	// 	var newContentObj:Dynamic = Json.parse(content);
-	// 	var newContentObjData:Dynamic = newContentObj.data;
-	// 	var fields = Reflect.fields(globalData);
-	// 	for (field in fields) {
-	// 		if (Reflect.hasField(newContentObjData, field)) {
-	// 			var newValue:Dynamic = Reflect.getProperty(newContentObjData, field);
-	// 			Reflect.setField(globalData, field, newValue);
-	// 		}
-	// 	}
-	// }
 
 	private function attemptReconnect() {
 		LOG_INFO("Attempting WS Reconnection");
@@ -120,6 +113,13 @@ class ViewWebSocketManager {
 		send(registerUserMessage); // send object to register the connected user id etc
 	}
 
+	public function sendGlobalUpdateMessage(data:Dynamic) {
+		var msg:GlobalUpdateMessage = new GlobalUpdateMessage();
+		msg.userID = userID;
+		msg.data = data;
+		send(msg); //message a single user can send to update the global status
+	}
+
 	private function onRecieveRegisterUserMessage(data:Dynamic) {
 		var registerUserMessage:RegisterUserMessage = new RegisterUserMessage();
 		SocketManagerDataHelper.populateFromDynamic(registerUserMessage, data);
@@ -132,7 +132,13 @@ class ViewWebSocketManager {
 		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_KEEPALIVE, keepAliveMessage);
 	}
 
-	public function send(payload:SocketMessage) {
+	private function onRecieveGlobalMessage(data:Dynamic) {
+		var msg:GlobalMessage = new GlobalMessage();
+		SocketManagerDataHelper.populateFromDynamic(msg, data);
+		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_MESSAGE, msg);
+	}
+
+	private function send(payload:SocketMessage) {
 		if (connected == true) {
 			payload.ts = Date.now().getTime();
 			ws.send(payload);
