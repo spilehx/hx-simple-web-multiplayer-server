@@ -20,7 +20,7 @@
 -main P2PServer
 --hl dist/P2PServer.hl
 
-# ## cleanup
+## cleanup
 --next
 --cmd rm dist/main.js
 --cmd rm dist/frame.js

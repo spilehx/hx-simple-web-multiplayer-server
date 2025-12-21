@@ -1,35 +1,51 @@
-package spilehx.p2pserver.server.usersocketupdatemanager;
+package spilehx.p2pserver.server.socketmanager;
 
+import haxe.Timer;
 import haxe.Json;
 import spilehx.p2pserver.dataobjects.UserDataObject;
 import spilehx.p2pserver.dataobjects.GlobalData;
 import spilehx.core.ws.WSServer;
 import spilehx.core.threadservices.ThreadedServiceManager.ThreadedService;
 
-class UserSocketUpdateManager extends ThreadedService {
-	private var users:Map<String, UserDataObject>;
-	private var userCount = 0;
-
-	private static final MIN_BROADCAST_UPDATE_INTERVAL:Float = 10;
-
-	private var lastBroadcastUpdate:Float;
+class SocketManager extends ThreadedService {
+	private static final MESSAGE_HEARTBEAT_INTERVAL:Int = 10;
+	private var socketManagerDataHelper:SocketManagerDataHelper;
+	private var messageHeartbeat:Timer;
 
 	public function new() {
 		super();
-		users = new Map<String, UserDataObject>();
+		socketManagerDataHelper = new SocketManagerDataHelper();
 	}
 
 	override public function start() {
 		super.start();
 		startUserWSServer();
+		startMessageHeartbeat();
 	}
 
 	override public function kill() {
 		WSServer.instance.stop();
+		stopMessageHeartbeat();
+	}
+
+	private function startMessageHeartbeat() {
+		messageHeartbeat = new Timer(MESSAGE_HEARTBEAT_INTERVAL);
+		messageHeartbeat.run = onMessageHeartbeat;
+	}
+
+	private function stopMessageHeartbeat() {
+		messageHeartbeat.stop();
+		messageHeartbeat = null;
+	}
+
+	private function onMessageHeartbeat() {
+		socketManagerDataHelper.onMessageHeartbeat();
 	}
 
 	private function startUserWSServer() {
-		lastBroadcastUpdate = Date.now().getTime();
+		socketManagerDataHelper.updateAllConnections = WSServer.instance.updateAllConnections;
+		socketManagerDataHelper.sendToUUID = WSServer.instance.sendToUUID;
+
 		WSServer.instance.onConnectionOpened = onConnectionOpened;
 		WSServer.instance.onConnectionClosed = onConnectionClosed;
 		WSServer.instance.onConnectionError = onConnectionError;
@@ -39,6 +55,7 @@ class UserSocketUpdateManager extends ThreadedService {
 
 	private function onConnectionOpened(wsUUID:String) {
 		LOG_INFO("WS Connection opened: " + wsUUID);
+		onUserConnected(wsUUID);
 	}
 
 	private function onConnectionClosed(wsUUID:String) {
@@ -53,48 +70,16 @@ class UserSocketUpdateManager extends ThreadedService {
 
 	private function onMessage(wsUUID:String, dataJson:String) {
 		var data:Dynamic = Json.parse(dataJson);
-
-		var udo:UserDataObject = {
-			wsUUID: wsUUID,
-			userID: data.userID,
-			data: data.data
-		};
-
-		updateUser(wsUUID, udo);
+		socketManagerDataHelper.onMessage(wsUUID, data);
 	}
 
 	private function onUserDisconnected(wsUUID:String) {
 		LOG_INFO("onUserDisconnected " + wsUUID);
-		unregisterUser(wsUUID);
+		socketManagerDataHelper.unregisterUser(wsUUID);
 	}
 
-	private function unregisterUser(wsUUID:String) {
-		if (users.exists(wsUUID)) {
-			users.remove(wsUUID);
-			userCount--;
-			sendBroadcastUpdate();
-		}
-	}
-
-	private function updateUser(wsUUID:String, udo:UserDataObject) {
-		udo.wsUUID = wsUUID;
-
-		if (users.exists(wsUUID) != true) {
-			userCount++;
-		}
-
-		users.set(wsUUID, udo);
-		sendBroadcastUpdate();
-	}
-
-	private function sendBroadcastUpdate() {
-		WSServer.instance.updateAllConnections(getGlobalData());
-	}
-
-	private function getGlobalData():GlobalData {
-		var data:GlobalData = new GlobalData();
-		data.users = users;
-		data.connectedUsers = userCount;
-		return data;
+	private function onUserConnected(wsUUID:String) {
+		LOG_INFO("onUserConnected " + wsUUID);
+		socketManagerDataHelper.registerUser(wsUUID);
 	}
 }

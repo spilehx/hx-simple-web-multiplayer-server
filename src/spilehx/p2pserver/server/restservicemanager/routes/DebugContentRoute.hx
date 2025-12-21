@@ -31,6 +31,11 @@ class DebugContentRoute extends Route {
 				<head>
 					<script src="/framecode.js"></script>
 					<script>
+
+						// setup canvas
+						var canvas = {};
+        				var ctx = {};
+
 						function start() {
 							console.log("Starting Debug Client ");
 							frameMessaging.onHostMessage = onHostMessage;
@@ -40,14 +45,44 @@ class DebugContentRoute extends Route {
 						
 						function onHostMessage(msg) {
 							var type = msg.type;
+							var data = msg.data;
 							// console.log("Message-->"+type);
 							// console.log("Messassssge-->"+JSON.stringify(msg.data));
 
-							if (type == "SOCKET_MESSAGE") {
-								var users = msg.data.users;
-								populateTable(users);
-								updateCanvasFromData(users);
+							switch (type){
+								case "SOCKET_OPEN":
+									console.log("SOCKET_OPEN");
+								break;
+
+								case "SOCKET_CLOSE":
+									console.log("SOCKET_CLOSE");
+								break;
+
+								case "SOCKET_ERROR":
+									console.log("SOCKET_ERROR");
+								break;
+
+								case "SOCKET_REGISTER":
+									console.log("SOCKET_REGISTER");
+								break;
+
+								case "SOCKET_KEEPALIVE":
+									// console.log("SOCKET_KEEPALIVE");
+								break;
+
+								case "SOCKET_MESSAGE":
+									console.log("SOCKET_MESSAGE");
+									onSocketMessage(data);
+								break;
 							}
+						}
+
+						function onSocketMessage(payload){
+							var data = payload.data;
+							var users = data.users;
+							populateTable(users);
+
+							updateCanvasFromData(users);						
 						}
 						
 						function populateTable(data){
@@ -97,9 +132,7 @@ class DebugContentRoute extends Route {
 							tableContainer.appendChild(table);
 						}
 
-						// setup canvas
-						var canvas = {};
-        				var ctx = {};
+						
 
 						function addCanvas(){
 							canvas = document.getElementById("c");
@@ -156,15 +189,17 @@ class DebugContentRoute extends Route {
 								mouseX: mouseX,
 								mouseY: mouseY
 							};
-							frameMessaging.sendFrameMessage(data);
+
+							
+							frameMessaging.sendGlobalMessage(data);
 						}
 
 						function updateCanvasFromData(users){
 						
 							Object.values(users).forEach(user => {
-								if (user.data != null) {
-									var mx = user.data.mouseX;
-									var my = user.data.mouseY;
+								if (user.globalData.data != null) {								
+									var mx = user.globalData.data.mouseX;
+									var my = user.globalData.data.mouseY;
 									drawDot(mx, my, 2, colorFromUUID(user.wsUUID));
 								}
 							});

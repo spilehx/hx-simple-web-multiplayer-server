@@ -69,6 +69,31 @@ $ hl P2PServer.hl -url http://myapp.com/fabapp.html
 			var data = msg.data;
 			console.log("type--> " + type);
 			console.log("Data--> " + JSON.stringify(data));
+			switch (type){
+				case "SOCKET_OPEN":
+					console.log("SOCKET_OPEN");
+				break;
+
+				case "SOCKET_CLOSE":
+					console.log("SOCKET_CLOSE");
+				break;
+
+				case "SOCKET_ERROR":
+					console.log("SOCKET_ERROR");
+				break;
+
+				case "SOCKET_REGISTER":
+					console.log("SOCKET_REGISTER");
+				break;
+
+				case "SOCKET_KEEPALIVE":
+					console.log("SOCKET_KEEPALIVE");
+				break;
+
+				case "SOCKET_MESSAGE":
+					console.log("SOCKET_MESSAGE");
+				break;
+			}
 		}
 
 		function sendMessage() {

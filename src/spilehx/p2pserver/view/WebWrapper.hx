@@ -1,5 +1,7 @@
 package spilehx.p2pserver.view;
 
+import spilehx.p2pserver.dataobjects.socketmessage.GlobalUpdateMessage;
+import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
 import js.html.URL;
 import spilehx.core.logger.GlobalLoggingSettings;
 import js.Syntax;
@@ -8,6 +10,7 @@ import js.html.IFrameElement;
 import haxe.Timer;
 import js.html.DivElement;
 import js.Browser;
+import spilehx.p2pserver.server.socketmanager.SocketManagerDataHelper;
 
 class WebWrapper {
 	public static final instance:WebWrapper = new WebWrapper();
@@ -46,7 +49,7 @@ class WebWrapper {
 	}
 
 	private function getFrameUrl():String {
-		// windowObject.CONTENT_URL is url of frame provided by server via cli args
+	
 		if (windowObject.CONTENT_URL.length > 0) {
 			if (isValidUrl(windowObject.CONTENT_URL)) {
 				return windowObject.CONTENT_URL;
@@ -147,7 +150,7 @@ class WebWrapper {
 	}
 
 	private function onSocketEvent(type:String, data:Dynamic) {
-		setConnectionErrorIframeVisible((type == ViewWebSocketManager.SOCKET_EVENT_CLOSE));
+		setConnectionErrorIframeVisible((type == SocketManagerDataHelper.SOCKET_EVENT_CLOSE));
 		sendFrameMessage(type, data);
 	}
 
@@ -193,8 +196,12 @@ class WebWrapper {
 		}
 	}
 
-	private function onIFrameMessageData(data:Dynamic) {
-		ViewWebSocketManager.instance.send(data);
+	private function onIFrameMessageData(data:SocketMessage) {
+		if (data.messageType == new GlobalUpdateMessage().messageType) {
+			ViewWebSocketManager.instance.sendGlobalUpdateMessage(data);
+		} else {
+			LOG_ERROR("not implemented type");
+		}
 	}
 
 	private function setupLayeredIframe(zIndex:Int):IFrameElement {
