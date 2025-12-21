@@ -200,8 +200,6 @@ class DebugContentRoute extends Route {
 								if (user.globalData.data != null) {								
 									var mx = user.globalData.data.mouseX;
 									var my = user.globalData.data.mouseY;
-
-									console.log(my);
 									drawDot(mx, my, 2, colorFromUUID(user.wsUUID));
 								}
 							});
