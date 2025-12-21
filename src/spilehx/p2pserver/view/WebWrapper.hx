@@ -8,6 +8,7 @@ import js.html.IFrameElement;
 import haxe.Timer;
 import js.html.DivElement;
 import js.Browser;
+import spilehx.p2pserver.server.socketmanager.SocketManagerDataHelper;
 
 class WebWrapper {
 	public static final instance:WebWrapper = new WebWrapper();
@@ -147,7 +148,7 @@ class WebWrapper {
 	}
 
 	private function onSocketEvent(type:String, data:Dynamic) {
-		setConnectionErrorIframeVisible((type == ViewWebSocketManager.SOCKET_EVENT_CLOSE));
+		setConnectionErrorIframeVisible((type == SocketManagerDataHelper.SOCKET_EVENT_CLOSE));
 		sendFrameMessage(type, data);
 	}
 

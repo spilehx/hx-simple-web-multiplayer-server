@@ -31,24 +31,64 @@ class DebugContentRoute extends Route {
 				<head>
 					<script src="/framecode.js"></script>
 					<script>
+
+						// setup canvas
+						var canvas = {};
+        				var ctx = {};
+
 						function start() {
 							console.log("Starting Debug Client ");
 							frameMessaging.onHostMessage = onHostMessage;
 							frameMessaging.init(window.location.protocol+"//"+window.location.host);
-							addCanvas();
+							// addCanvas();
 						}
 						
 						function onHostMessage(msg) {
 							var type = msg.type;
-							// console.log("Message-->"+type);
-							// console.log("Messassssge-->"+JSON.stringify(msg.data));
+							console.log("Message-->"+type);
+							console.log("Messassssge-->"+JSON.stringify(msg.data));
 
-							if (type == "SOCKET_MESSAGE") {
-								var users = msg.data.users;
-								populateTable(users);
-								updateCanvasFromData(users);
+							switch (type){
+								case "SOCKET_OPEN":
+									console.log("SOCKET_OPEN");
+								break;
+
+								case "SOCKET_CLOSE":
+									console.log("SOCKET_CLOSE");
+								break;
+
+								case "SOCKET_ERROR":
+									console.log("SOCKET_ERROR");
+								break;
+
+								case "SOCKET_REGISTER":
+									console.log("SOCKET_REGISTER");
+								break;
+
+								case "SOCKET_KEEPALIVE":
+									console.log("SOCKET_KEEPALIVE");
+								break;
+
+								case "SOCKET_MESSAGE":
+									console.log("SOCKET_MESSAGE");
+								break;
 							}
+							// if (type == "SOCKET_MESSAGE") {
+							// 	var users = msg.data.users;
+							// 	populateTable(users);
+
+							// 	if(canvas != null){
+							// 		updateCanvasFromData(users);
+							// 	}else{
+							// 		console.log("No canvas");
+							// 	}
+
+							// }
 						}
+
+
+
+
 						
 						function populateTable(data){
 							const tableContainer = document.getElementById("tableContainer");
@@ -97,9 +137,7 @@ class DebugContentRoute extends Route {
 							tableContainer.appendChild(table);
 						}
 
-						// setup canvas
-						var canvas = {};
-        				var ctx = {};
+						
 
 						function addCanvas(){
 							canvas = document.getElementById("c");

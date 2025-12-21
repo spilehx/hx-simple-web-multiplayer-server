@@ -1,17 +1,16 @@
 package spilehx.p2pserver.view;
 
+import spilehx.p2pserver.dataobjects.socketmessage.KeepAliveMessage;
+import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
+import spilehx.p2pserver.dataobjects.socketmessage.RegisterUserMessage;
 import haxe.Json;
 import spilehx.p2pserver.dataobjects.GlobalData;
 import haxe.Timer;
 import spilehx.core.ws.WSClient;
+import spilehx.p2pserver.server.socketmanager.SocketManagerDataHelper;
 
 class ViewWebSocketManager {
 	private static final RECONNECT_DELAY:Int = 1000;
-
-	public static final SOCKET_EVENT_OPEN:String = "SOCKET_OPEN";
-	public static final SOCKET_EVENT_CLOSE:String = "SOCKET_CLOSE";
-	public static final SOCKET_EVENT_ERROR:String = "SOCKET_ERROR";
-	public static final SOCKET_EVENT_MESSAGE:String = "SOCKET_MESSAGE";
 
 	@:isVar public var url(null, default):String;
 	@:isVar public var port(null, default):Int;
@@ -55,15 +54,15 @@ class ViewWebSocketManager {
 	private function onOpen() {
 		LOG("WS Connected");
 		connected = true;
-		dispatchSocketEvent(SOCKET_EVENT_OPEN, {});
-		send(); // send empty object just to register the connected user fully
+		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_OPEN, {});
+		sendRegisterUserMessage();
 	}
 
 	private function onClose() {
 		if (connected != false) {
 			LOG_WARN("WS connection lost");
 			// only dispatch on first close event
-			dispatchSocketEvent(SOCKET_EVENT_CLOSE, {});
+			dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_CLOSE, {});
 		}
 
 		connected = false;
@@ -78,29 +77,32 @@ class ViewWebSocketManager {
 
 	private function onError() {
 		if (connected) {
-			dispatchSocketEvent(SOCKET_EVENT_ERROR, {});
+			dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_ERROR, {});
 			LOG_ERROR("WS Error");
 		}
 	}
 
 	private function onMessage(message:Dynamic) {
-		// LOG_INFO("WS new Message");
-		updateGlobalData(message.content);
-		dispatchSocketEvent(SOCKET_EVENT_MESSAGE, globalData);
-	}
-
-	private function updateGlobalData(content:String) {
-		var newContentObj:Dynamic = Json.parse(content);
-		var newContentObjData:Dynamic = newContentObj.data;
-
-		var fields = Reflect.fields(globalData);
-		for (field in fields) {
-			if (Reflect.hasField(newContentObjData, field)) {
-				var newValue:Dynamic = Reflect.getProperty(newContentObjData, field);
-				Reflect.setField(globalData, field, newValue);
-			}
+		LOG_INFO("WS new Message");
+		var newContentObj:Dynamic = Json.parse(message.content).data;
+		if (newContentObj.messageType == new RegisterUserMessage().messageType) {
+			onRecieveRegisterUserMessage(newContentObj);
+		} else if (newContentObj.messageType == new KeepAliveMessage().messageType) {
+			onRecieveKeepAliveMessage(newContentObj);
 		}
 	}
+
+	// private function updateGlobalData(content:String) {
+	// 	var newContentObj:Dynamic = Json.parse(content);
+	// 	var newContentObjData:Dynamic = newContentObj.data;
+	// 	var fields = Reflect.fields(globalData);
+	// 	for (field in fields) {
+	// 		if (Reflect.hasField(newContentObjData, field)) {
+	// 			var newValue:Dynamic = Reflect.getProperty(newContentObjData, field);
+	// 			Reflect.setField(globalData, field, newValue);
+	// 		}
+	// 	}
+	// }
 
 	private function attemptReconnect() {
 		LOG_INFO("Attempting WS Reconnection");
@@ -112,14 +114,27 @@ class ViewWebSocketManager {
 		}
 	}
 
-	public function send(data:Dynamic = null) {
-		if (connected == true) {
-			var payload:Dynamic = {};
-			payload.userID = userID;
+	private function sendRegisterUserMessage() {
+		var registerUserMessage:RegisterUserMessage = new RegisterUserMessage();
+		registerUserMessage.userID = userID;
+		send(registerUserMessage); // send object to register the connected user id etc
+	}
 
-			if (data != null) {
-				payload.data = data;
-			}
+	private function onRecieveRegisterUserMessage(data:Dynamic) {
+		var registerUserMessage:RegisterUserMessage = new RegisterUserMessage();
+		SocketManagerDataHelper.populateFromDynamic(registerUserMessage, data);
+		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_REGISTERED, registerUserMessage);
+	}
+
+	private function onRecieveKeepAliveMessage(data:Dynamic) {
+		var keepAliveMessage:KeepAliveMessage = new KeepAliveMessage();
+		SocketManagerDataHelper.populateFromDynamic(keepAliveMessage, data);
+		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_KEEPALIVE, keepAliveMessage);
+	}
+
+	public function send(payload:SocketMessage) {
+		if (connected == true) {
+			payload.ts = Date.now().getTime();
 			ws.send(payload);
 		}
 	}
