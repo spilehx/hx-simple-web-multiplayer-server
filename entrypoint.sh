@@ -1,7 +1,21 @@
 #!/bin/sh
 set -eu
 
-hl /app/P2PServer.hl &
+
+# Args from compose to pass to server 
+HL_ARGS=""
+
+if [ -n "${FRAME_URL:-}" ]; then
+  HL_ARGS="$HL_ARGS -url $FRAME_URL"
+fi
+
+if [ -n "${VERBOSE_LOGGING:-}" ]; then
+  HL_ARGS="$HL_ARGS -v $VERBOSE_LOGGING"
+fi
+
+
+# Start server
+hl /app/P2PServer.hl $HL_ARGS &
 APP_PID="$!"
 
 # If the app dies, stop the container
