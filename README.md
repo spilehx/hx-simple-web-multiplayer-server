@@ -1,8 +1,13 @@
-# Simple web live multiplayer server
+# Simple Web Live Multiplayer Server
 
-**An all in one server & js framework to quickly setup a realtime multi-user web-app with real time communication between user pages! You supply a web-app or game and we supply the live communication server & tools**
+**A lightweight server and JS helper that instantly adds real-time, multi-user messaging to any existing web app or game.**\
+You host your app anywhere; this server wraps it and connects all users via WebSockets.
 
+> Designed for fast multiplayer prototypes, collaborative tools, live demos, and experiments.
 
+> [!IMPORTANT]\
+> This project uses **server-mediated WebSocket messaging** (not true browser P2P).\
+> By default, all connected users can see shared data.
 > [!IMPORTANT]  
 > Please review **Important Notes** at bottom of this readme.
 
@@ -11,11 +16,11 @@
  - **[Overview](#overview)**
  - **[Quick Start](#quick-start)**
  - **[Without docker](#without-docker)**
+ - **[How it works](#how-it-works)**
  - **[Important Notes](#important-notes)**
 
 <br>
 <br>
-
 
 # Overview
 
@@ -245,6 +250,53 @@ For details on args run
 $ hl P2PServer.hl --help
 ```
 
+---
+<br>
+<br>
+
+
+# How it works
+
+### high-level flow
+
+```text
+┌──────────────┐
+│  User A      │
+│  Browser     │
+│              │
+│  iframe      │◀───────────────┐
+│  (your app)  │                │
+└──────┬───────┘                │
+       │ WebSocket              │ WebSocket
+       │                        │
+┌──────▼────────────────────────▼──────┐
+│   Simple Web Live Multiplayer Server  │
+│   - HTTP server                       │
+│   - WebSocket hub                     │
+│   - Message routing                   │
+└──────▲────────────────────────▲──────┘
+       │                        │
+       │ WebSocket              │ WebSocket
+       │                        │
+┌──────┴───────┐                ┌──────┴───────┐
+│  User B      │                │  User C      │
+│  Browser     │                │  Browser     │
+│              │                │              │
+│  iframe      │                │  iframe      │
+│  (your app)  │                │  (your app)  │
+└──────────────┘                └──────────────┘
+```
+
+### Message flow
+1. Users open the server URL
+2. The server loads your app URL inside an iframe
+3. Your app loads `framecode.js`
+4. Each iframe opens a WebSocket connection to the server
+5. The server relays messages (global or direct) between users
+6. Your app receives events via `frameMessaging.onHostMessage`
+
+
+---
 <br>
 <br>
 
@@ -253,7 +305,6 @@ $ hl P2PServer.hl --help
 **Q: How mature is this project?**
 
 **A:** It works, BUT its still WORK IN PROGRESS - Please be aware of this!
-
 
 **Q: Is this production ready, fully app sec tested and ready for my important project**
 
