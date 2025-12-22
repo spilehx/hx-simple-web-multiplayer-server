@@ -1,9 +1,9 @@
 # Simple Web Live Multiplayer Server
 
-**A lightweight server and JS helper that instantly adds real-time, multi-user messaging to any existing web app or game.**\
-You host your app anywhere; this server wraps it and connects all users via WebSockets.
+**A lightweight server and JS helper that instantly adds real-time, multi-user messaging to any existing web app or game.
+You host your app anywhere; this server wraps it and connects all users via WebSockets.**
 
-> Designed for fast multiplayer prototypes, collaborative tools, live demos, and experiments.
+**Designed for fast multiplayer prototypes, collaborative tools, live demos, and experiments.**
 
 > [!IMPORTANT]\
 > This project uses **server-mediated WebSocket messaging** (not true browser P2P).\
@@ -257,7 +257,7 @@ $ hl P2PServer.hl --help
 
 # How it works
 
-### high-level flow
+### High-level flow
 
 ```text
 ┌──────────────┐
