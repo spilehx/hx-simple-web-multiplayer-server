@@ -5,9 +5,7 @@ You host your app anywhere; this server wraps it and connects all users via WebS
 
 **Designed for fast multiplayer prototypes, collaborative tools, live demos, and experiments.**
 
-> [!IMPORTANT]\
-> This project uses **server-mediated WebSocket messaging** (not true browser P2P).\
-> By default, all connected users can see shared data.
+
 > [!IMPORTANT]  
 > Please review **Important Notes** at bottom of this readme.
 
