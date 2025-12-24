@@ -125,10 +125,11 @@ class ViewWebSocketManager {
 		var msg:GlobalUpdateMessage = new GlobalUpdateMessage();
 		msg.userID = userID;
 		msg.data = data;
-		send(msg); //message a single user can send to update the global status
+		send(msg); // message a single user can send to update the global status
 	}
 
 	private function onRecieveRegisterUserMessage(data:Dynamic) {
+		// LOG_INFO("onRecieveRegisterUserMessage");
 		var registerUserMessage:RegisterUserMessage = new RegisterUserMessage();
 		SocketManagerDataHelper.populateFromDynamic(registerUserMessage, data);
 		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_REGISTERED, registerUserMessage);
@@ -141,6 +142,7 @@ class ViewWebSocketManager {
 	}
 
 	private function onRecieveGlobalMessage(data:Dynamic) {
+		// LOG_INFO("onRecieveGlobalMessage");
 		var msg:GlobalMessage = new GlobalMessage();
 		SocketManagerDataHelper.populateFromDynamic(msg, data);
 		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_MESSAGE, msg);

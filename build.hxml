@@ -2,6 +2,7 @@
 ## create JS to be included in server bin for main host page
 -lib hxWebSockets
 -cp src
+-dce std
 -js dist/main.js
 --main P2PServer
 
@@ -10,13 +11,20 @@
 -D frameCode=true
 -lib hxWebSockets
 -cp src
+-dce std
 -js dist/frame.js
 --main P2PServer
+
+--next
+# ## minify js
+--cmd npx terser dist/frame.js -c -m -o dist/frame.js
+--cmd npx terser dist/main.js -c -m -o dist/main.js
 
 --next
 ## Build server
 -lib weblink hxWebSockets
 -cp src
+-dce std
 -main P2PServer
 --hl dist/P2PServer.hl
 
