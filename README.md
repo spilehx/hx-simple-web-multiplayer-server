@@ -89,109 +89,125 @@ This is a backend server that provides a peer to peer websocket connections, pro
 
 
 ## Sending and Receiving messages in your webapp
-- You need to add some js code to your html, this code is provided on a url from the server add this in your html ```<head>``` ***Note: This is an external link - so in production update this link to point at the URL you have set up**
+- You need to add some js code to your html, this code is provided on a url from the server at ```http://localhost:8081/framecode.js``` when this is loaded you need to call ```frameMessaging.init();``` to start it and set ```frameMessaging.onHostMessage``` to get the messages.
+  
+  All in one example using the ```parentOrigin``` that is passed to your frame
+  	```js
+	window.onload = function () {
+		const s = document.createElement('script');
+		s.src = new URLSearchParams(location.search).get("parentOrigin") + "/framecode.js";
+		s.onload = () => {
+			frameMessaging.init(); // Start comms!
+			frameMessaging.onHostMessage = onHostMessage; // set a function to get the messages
+		};
+		document.head.appendChild(s);
+	};
+
+	function onHostMessage(msg) {
+		// here are the messages
+	}
+
+	``` 
+  
+  
+  You can also just add the link in a ```<script>```in your html ```<head>``` ***Note: But you will have to set the url manually**
 
 	```html
 	<script src="http://localhost:8081/framecode.js"></script>
 	``` 
-- Once your page is loaded you will have access to an object called ```frameMessaging``` this is the interface for communication, you need to start the service with ```frameMessaging.init();```
-- When you reload the server your page will be connected! ***See example below for a simple example of how to implement in your code.***
+
+- When you reload the server your page will be connected! ***See example below for a full example of how to implement in your code.***
 
 	```html
 	<!DOCTYPE html>
 	<html>
 
-		<head>
-			<!-- update this url based on where you are serving -->
-			<script src="http://localhost:8081/framecode.js"></script>
-			<script>
+	<head>
+		<script>
 
-				/* These are Incoming messages! */
-				// see how this is called below in the onload
-				function onHostMessage(msg) {
-					var type = msg.type;
-					var data = msg.data;
-					console.log("type--> " + type);
-					console.log("Data--> " + JSON.stringify(data));
-					
-					// They have a type so you can filter them
-					switch (type){
-						case "SOCKET_OPEN":
-							// A new user has loaded the page
-							console.log("SOCKET_OPEN");
-						break;
+			// load the comms code provided by the server
+			// This page is loaded as a frame and is passed the parent origin as a url param, 
+			// so we can use that to get "https://whereYourServerIs.com/framecode.js"
+			window.onload = function () {
+				const s = document.createElement('script');
+				s.src = new URLSearchParams(location.search).get("parentOrigin") + "/framecode.js";
+				s.onload = () => {
+					frameMessaging.init(); // Start comms!
 
-						case "SOCKET_CLOSE":
-							// A user has closed the page
-							console.log("SOCKET_CLOSE");
-						break;
-
-						case "SOCKET_ERROR":
-							// There has been a problem with a socket connection
-							// Normally these recover by themselves - so not to worry!
-							console.log("SOCKET_ERROR");
-						break;
-
-						case "SOCKET_REGISTER":
-							// This is called when the current page has successfully connected.
-							// Use this as a indicator that things are working as they should
-							console.log("SOCKET_REGISTER");
-						break;
-
-						case "SOCKET_KEEPALIVE":
-							//Normally you can ignore these - just keeping the socket alive when app is idle
-							console.log("SOCKET_KEEPALIVE");
-						break;
-
-						case "SOCKET_MESSAGE":
-							//When you get some data from the server! This is the one you will use the most
-							console.log("SOCKET_MESSAGE");
-						break;
-					}
-				}
-
-
-				/* Create functions like these to send data */
-
-				function sendGlobalMessage() {
-					// GlobalMessages are passed on to ALL users
-
-					// You can send ANY data structure you like!
-					var data = {
-						foo: "bar",
-						thing: 1
-					};
-					frameMessaging.sendGlobalMessage(data);
-				}
-
-				function sendDirectMessage() {
-					// DirectMessage are passed only to a specific user
-					// a user list is sent to you in your GlobalMessages, find UserId there
-					var userID = "1234567"; 
-					// You can send ANY data structure you like!
-					var data = {
-						foo: "bar",
-						thing: 1
-					};
-					frameMessaging.sendDirectMessage(data, userID);
-				}
-
-
-				/* Kick all this off when page is fully loaded */
-
-				window.onload = function () {
-					// frameMessaging is the object we provide
-					//Set the function to be called on all events
-					frameMessaging.onHostMessage = onHostMessage; 
-
-					// Start the connection - you MUST do this for it to work
-					frameMessaging.init();
+					frameMessaging.onHostMessage = onHostMessage; // set a function to get the messages
 				};
-			</script>
-		</head>
+				document.head.appendChild(s);
+			};
 
-		<body>
-		</body>
+			// Incoming messages!
+			function onHostMessage(msg) {
+				var type = msg.type;
+				var message = msg.data;
+				switch (type) {
+					case "SOCKET_OPEN":
+						console.log("SOCKET_OPEN");
+						break;
+
+					case "SOCKET_CLOSE":
+						console.log("SOCKET_CLOSE");
+						break;
+
+					case "SOCKET_ERROR":
+						console.log("SOCKET_ERROR");
+						break;
+
+					case "SOCKET_REGISTER":
+						console.log("SOCKET_REGISTER");
+						break;
+
+					case "SOCKET_KEEPALIVE":
+						console.log("SOCKET_KEEPALIVE");
+						break;
+
+					case "SOCKET_MESSAGE":
+						console.log("SOCKET_MESSAGE");
+						onSocketMessage(message);
+						break;
+				}
+			}
+
+			function onSocketMessage(message) {
+				document.getElementById("nusers").innerHTML = message.data.connectedUsers;
+			}
+
+
+			/* Create functions like these to send data */
+
+			function sendGlobalMessage() {
+				// GlobalMessages are passed on to ALL users
+
+				// You can send ANY data structure you like!
+				var data = {
+					foo: "bar",
+					thing: 1
+				};
+				frameMessaging.sendGlobalMessage(data);
+			}
+
+			function sendDirectMessage() {
+				// DirectMessage are passed only to a specific user
+				// a user list is sent to you in your GlobalMessages, find UserId there
+				var userID = "1234567";
+				// You can send ANY data structure you like!
+				var data = {
+					foo: "bar",
+					thing: 1
+				};
+				frameMessaging.sendDirectMessage(data, userID);
+			}
+
+		</script>
+	</head>
+
+	<body>
+		<p id="nusers"></p>
+	</body>
+
 	</html>
 	```
 

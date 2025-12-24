@@ -17,7 +17,7 @@ class SocketManagerDataHelper {
 	public static final SOCKET_EVENT_KEEPALIVE:String = "SOCKET_KEEPALIVE";
 	public static final SOCKET_EVENT_MESSAGE:String = "SOCKET_MESSAGE";
 
-	private static final KEEP_ALIVE_DELAY:Float = 500;
+	private static final KEEP_ALIVE_DELAY:Float = 2000;
 
 	@:isVar public var updateAllConnections(null, default):Dynamic->Void;
 	@:isVar public var sendToUUID(null, default):String->Dynamic->Void;
@@ -36,8 +36,13 @@ class SocketManagerDataHelper {
 	}
 
 	public function onMessageHeartbeat() {
-		var queueItemCalled:Bool = callNext();
-		if (queueItemCalled != true) {
+		if (msgQueue.length > 0) {
+			while (msgQueue.length > 0) {
+				// send all right away
+				callNext();
+			}
+		} else {
+			// do keep alive
 			var now:Float = Date.now().getTime();
 			var since:Float = now - timeSinceKeepAlive;
 

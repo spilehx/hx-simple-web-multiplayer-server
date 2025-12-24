@@ -2,8 +2,12 @@ services:
   hxsimplewebmultiplayerserver:
     container_name: hx-simple-web-multiplayer-server
     image: ghcr.io/spilehx/hx-simple-web-multiplayer-server:latest
+    # image: hxsimplewebmultiplayerserver:latest # for local dev
     ports:
       - "8081:80"
     environment:
-      FRAME_URL: "https://spilehx.github.io/hx-simple-web-multiplayer-server-example-pages/basic-boilerplate.html" # URL to Client to load in iframe - if not included will load debug page
-      VERBOSE_LOGGING: "true"   # "true" or "false" - Show verbose logging
+      # URL to Client to load in iframe - if not included will load debug page
+      # Set your URL here!, Below are example pages - For code see https://spilehx.github.io/hx-simple-web-multiplayer-server-example-pages
+      FRAME_URL: "https://spilehx.github.io/hx-simple-web-multiplayer-server-example-pages/basic-boilerplate.html" # Basic boilerplate example 
+      # FRAME_URL: "https://spilehx.github.io/hx-simple-web-multiplayer-server-example-pages/spacedemo/index.html" # ROUGH space ship demo using ceramic - for source see https://github.com/spilehx/mulitplayer-space-example-game
+      VERBOSE_LOGGING: "true"   # "true" or "false" - Show verbose logging on server and in web console

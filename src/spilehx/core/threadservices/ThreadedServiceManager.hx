@@ -7,7 +7,7 @@ import sys.thread.Mutex;
 import sys.thread.Thread;
 
 class ThreadedServiceManager {
-	private static final MAIN_THREAD_DATA_UPDATE_INTERVAL_MS:Int = 1;
+	private static final MAIN_THREAD_DATA_UPDATE_INTERVAL_MS:Int = 10;
 	private static final THREAD_ERROR_BACKOFF_BEFORE_RESTART:Float = 1;
 	private static final MAX_THREAD_ERROR_BEFORE_EXIT:Int = 10;
 
