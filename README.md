@@ -12,10 +12,15 @@ You host your app anywhere; this server wraps it and connects all users via WebS
 
 ## Table of Contents
  - **[Overview](#overview)**
+  - [Setup and run the server](#setup-and-run-the-server)
+  - [Add your content](#add-your-content)
+  - [Sending and Receiving messages in your webapp](#sending-and-receiving-messages-in-your-webapp)
  - **[Quick Start](#quick-start)**
  - **[Without docker](#without-docker)**
  - **[How it works](#how-it-works)**
  - **[Important Notes](#important-notes)**
+
+
 
 <br>
 <br>
