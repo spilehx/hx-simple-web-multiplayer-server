@@ -1,0 +1,12 @@
+{
+  "name": "hx-simple-web-multiplayer-server-tools",
+  "url": "https://github.com/spilehx/hx-simple-web-multiplayer-server/tree/main/src/spilehx/p2pserver/haxelib",
+  "license": "MIT",
+  "tags": ["haxe"],
+  "description": "Supporting we client class for use with https://github.com/spilehx/hx-simple-web-multiplayer-server",
+  "version": "0.0.1",
+  "classPath": "/haxelib",
+  "contributors": ["spilehx"],
+  "releasenote": "",
+  "dependencies": {}
+}
