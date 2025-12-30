@@ -129,6 +129,28 @@ Your webapp needs to include a small bit of JS - This code is provided by the ru
 			console.log(msg);
 		}
 
+		// example on how to send a private one to one message
+		function sendDm(userID, msg) {
+            var data = {
+                message: msg
+            }
+
+            frameMessaging.sendDMMessage(data, userID);
+        }
+
+		// send a broadcast message to all
+		// example on how to send a private one to one message
+		function sendGolbal message(userID, msg) {
+           var thisCanBeAnyData = {
+				foo: "bar",
+				n: 1337,
+				complexObject: aComplexObject,
+				boolsToo: true
+			}
+
+            frameMessaging.sendGlobalMessage(thisCanBeAnyData);
+        }
+
 	</script>
 	``` 
 
@@ -168,9 +190,9 @@ Your webapp needs to include a small bit of JS - This code is provided by the ru
 			trace("New message!");
 			trace(message.data);
 		}
-		
-		private function sendData(){
-			// send a message using a function like this.
+
+		private function sendDirectPrivateMesssage(userID:String){
+			// send a direct message using a function like this.
 			// you can send anything, 
 			// but be aware that whilst being sent it will be turned into json
 			// here is a random example
@@ -181,7 +203,22 @@ Your webapp needs to include a small bit of JS - This code is provided by the ru
 				complexObject: aComplexObject,
 				boolsToo: true
 			}
-			MultiplayerMessaging.instance.send();
+			MultiplayerMessaging.instance.sendDMMessage(userID, thisCanBeAnyData);
+		}
+		
+		private function sendData(){
+			// send a Global message using a function like this.
+			// you can send anything, 
+			// but be aware that whilst being sent it will be turned into json
+			// here is a random example
+
+			var thisCanBeAnyData:Dynamic = {
+				foo: "bar",
+				n: 1337,
+				complexObject: aComplexObject,
+				boolsToo: true
+			}
+			MultiplayerMessaging.instance.send(thisCanBeAnyData);
 		}
 	}
 

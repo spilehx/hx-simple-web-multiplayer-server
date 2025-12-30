@@ -129,6 +129,15 @@ class MultiplayerMessaging {
 		}
 		messageBridge.sendGlobalMessage(data);
 	}
+
+
+	public function sendDMMessage(userID:String, data:Dynamic) {
+		if (messageBridge == null) {
+			trace("Cant send, frame Messaging not active");
+			return;
+		}
+		messageBridge.sendDMMessage(data, userID);
+	}
 }
 
 typedef Message = {
