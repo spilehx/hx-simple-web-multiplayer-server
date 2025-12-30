@@ -94,7 +94,7 @@ class ViewWebSocketManager {
 	}
 
 	private function onMessage(message:Dynamic) {
-		var newContentObj:Dynamic = Json.parse(message.content).data;;
+		var newContentObj:Dynamic = Json.parse(message.content).data;
 		if (newContentObj.messageType == new RegisterUserMessage().messageType) {
 			onRecieveRegisterUserMessage(newContentObj);
 		} else if (newContentObj.messageType == new KeepAliveMessage().messageType) {
