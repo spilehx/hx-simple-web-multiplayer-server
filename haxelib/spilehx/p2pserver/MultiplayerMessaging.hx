@@ -22,7 +22,7 @@ class MultiplayerMessaging {
 	private var pageLoaded:Bool = false;
 	private var onReady:Function;
 
-	public var onMessage:Function;
+	public var onMessage:Message->Void;
 
 	private var messageBridge:Dynamic;
 	private var scriptEl:ScriptElement;
@@ -109,7 +109,7 @@ class MultiplayerMessaging {
 			}
 
 			if (onMessage != null) {
-				onMessage();
+				onMessage(message);
 			}
 		} else if (type == SOCKET_EVENT_REGISTERED) {
 			if (rawMessage.data.messageType == SOCKET_MESSAGE_REGISTER_USER) {
