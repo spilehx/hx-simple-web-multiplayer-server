@@ -4,4 +4,5 @@ typedef UserDataObject = {
 	var wsUUID:String;
     var userID:String;
     var globalData:Dynamic;
+    var privateData:Dynamic;
 }

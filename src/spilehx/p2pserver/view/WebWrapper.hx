@@ -1,5 +1,6 @@
 package spilehx.p2pserver.view;
 
+import spilehx.p2pserver.dataobjects.socketmessage.UserDirectMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.GlobalUpdateMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
 import js.html.URL;
@@ -199,6 +200,9 @@ class WebWrapper {
 	private function onIFrameMessageData(data:SocketMessage) {
 		if (data.messageType == new GlobalUpdateMessage().messageType) {
 			ViewWebSocketManager.instance.sendGlobalUpdateMessage(data);
+		} else if (data.messageType == new UserDirectMessage().messageType) {
+			ViewWebSocketManager.instance.sendUserDirectMessage(data);
+	
 		} else {
 			LOG_ERROR("not implemented type");
 		}

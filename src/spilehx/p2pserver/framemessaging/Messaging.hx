@@ -17,6 +17,8 @@ class Messaging {
 	@:isVar public var onMessage(default, default):Dynamic->Void;
 	@:isVar public var onReady(default, default):Function;
 
+	@:isVar public var activeUser(default, null):String;
+
 	private var entity:String = "";
 
 	private var targetReady:Bool = false;
@@ -38,7 +40,7 @@ class Messaging {
 
 	function onMessageReceived(e:MessageEvent):Void {
 		if (e.origin != targetOrigin) {
-			LOG_ERROR("Origin mismatch "+e.origin+" != "+targetOrigin);
+			LOG_ERROR("Origin mismatch " + e.origin + " != " + targetOrigin);
 			return;
 		}
 
@@ -55,11 +57,15 @@ class Messaging {
 			if (targetReady == false) {
 				targetReady = true;
 				sendReadyMessage(); // got ready message - respond in kind
-                if (onReady != null) {
-                    onReady();
-                }
+				if (onReady != null) {
+					onReady();
+				}
 			}
 		} else if (msgType.split(":").pop() == MSG_TYPE_DATA) {
+			if (msgPayload.type == "SOCKET_REGISTER") {
+				activeUser = msgPayload.data.userID;
+			}
+
 			if (onMessage != null) {
 				onMessage(msgPayload);
 			}

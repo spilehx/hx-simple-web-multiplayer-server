@@ -75,7 +75,7 @@ This is a backend server that provides a peer to peer websocket connections, pro
 ## Step 2: Adding your content
 
 > [!NOTE]
-> Your web app page needs to be on its own webserver so that it loads directly on a URL. This service does not act as a webserver for your content, it will just load it in an iFrame and warp it to provide the communication connectivity!
+> Your web app page needs to be on its own webserver so that it loads directly on a URL. This service does not act as a webserver for your content, it will just load it in an iFrame and wrap it to provide the communication connectivity!
 
 - Open the ```docker-compose.yml``` we made in the last step and add environment variable for ```FRAME_URL``` this should be the full url of your webpage html.
 
@@ -318,7 +318,7 @@ $ hl P2PServer.hl --help
 
 **Q: Is this production ready, fully app sec tested and ready for my important project**
 
-**A:** Please use at your own risk, and probably best not on anything mission critical. Remember all data is open to all users and you can sen whatever you like.
+**A:** Please use at your own risk, and probably best not on anything mission critical. Remember all data is open to all users and you can send whatever you like.
 
 **Q: I found a bug!**
 
