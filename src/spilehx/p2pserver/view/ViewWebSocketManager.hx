@@ -1,5 +1,6 @@
 package spilehx.p2pserver.view;
 
+import spilehx.p2pserver.dataobjects.socketmessage.UserDirectMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.KeepAliveMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.RegisterUserMessage;
@@ -47,8 +48,8 @@ class ViewWebSocketManager {
 	private function setupWS() {
 		var urlParts:Array<String> = new Array<String>();
 		urlParts.push(url);
-		if(port != null){
-			urlParts.push(":"+port);
+		if (port != null) {
+			urlParts.push(":" + port);
 		}
 
 		urlParts.push(path);
@@ -93,15 +94,15 @@ class ViewWebSocketManager {
 	}
 
 	private function onMessage(message:Dynamic) {
-	
-		var newContentObj:Dynamic = Json.parse(message.content).data;
-			LOG_INFO("WS new Message"+newContentObj.messageType);
+		var newContentObj:Dynamic = Json.parse(message.content).data;;
 		if (newContentObj.messageType == new RegisterUserMessage().messageType) {
 			onRecieveRegisterUserMessage(newContentObj);
 		} else if (newContentObj.messageType == new KeepAliveMessage().messageType) {
 			onRecieveKeepAliveMessage(newContentObj);
-		}else if (newContentObj.messageType == new GlobalMessage().messageType) {
+		} else if (newContentObj.messageType == new GlobalMessage().messageType) {
 			onRecieveGlobalMessage(newContentObj);
+		} else if (newContentObj.messageType == new UserDirectMessage().messageType) {
+			onRecieveUserDirectMessage(newContentObj);
 		}
 	}
 
@@ -128,11 +129,25 @@ class ViewWebSocketManager {
 		send(msg); // message a single user can send to update the global status
 	}
 
+	public function sendUserDirectMessage(data:Dynamic) {
+		var msg:UserDirectMessage = new UserDirectMessage();
+		msg.userID = userID;
+		msg.data = data;
+		send(msg); // message a single user can send to update the global status
+	}
+
 	private function onRecieveRegisterUserMessage(data:Dynamic) {
 		// LOG_INFO("onRecieveRegisterUserMessage");
 		var registerUserMessage:RegisterUserMessage = new RegisterUserMessage();
 		SocketManagerDataHelper.populateFromDynamic(registerUserMessage, data);
 		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_REGISTERED, registerUserMessage);
+	}
+
+	private function onRecieveUserDirectMessage(data:Dynamic) {
+		// LOG_INFO("onRecieveUserDirectMessage");
+		var msg:UserDirectMessage = new UserDirectMessage();
+		SocketManagerDataHelper.populateFromDynamic(msg, data);
+		dispatchSocketEvent(SocketManagerDataHelper.SOCKET_EVENT_MESSAGE, msg);
 	}
 
 	private function onRecieveKeepAliveMessage(data:Dynamic) {

@@ -26,209 +26,354 @@ class DebugContentRoute extends Route {
 
 	private function getContent():String {
 		return '
-			<!doctype html>
-			<html>
-				<head>
-					<script src="/framecode.js"></script>
-					<script>
+		<!doctype html>
+<html>
 
-						// setup canvas
-						var canvas = {};
-        				var ctx = {};
+<head>
+     <script src="/framecode.js"></script> 
+    <script>
+        let currentModal = null;
+        // setup canvas
+        var canvas = {};
+        var ctx = {};
 
-						function start() {
-							console.log("Starting Debug Client ");
-							frameMessaging.onHostMessage = onHostMessage;
-							frameMessaging.init(window.location.protocol+"//"+window.location.host);
-							addCanvas();
-						}
-						
-						function onHostMessage(msg) {
-							var type = msg.type;
-							var data = msg.data;
-							// console.log("Message-->"+type);
-							// console.log("Messassssge-->"+JSON.stringify(msg.data));
+        // function start() {
+        // 	console.log("Starting Debug Client ");
+        // 	frameMessaging.onHostMessage = onHostMessage;
+        // 	frameMessaging.init(window.location.protocol+"//"+window.location.host);
+        // 	addCanvas();
+        // }
 
-							switch (type){
-								case "SOCKET_OPEN":
-									console.log("SOCKET_OPEN");
-								break;
+        function onHostMessage(msg) {
+            var type = msg.type;
+            var data = msg.data;
+            // console.log("Message-->"+type);
+            // console.log("Messassssge-->"+JSON.stringify(msg.data));
 
-								case "SOCKET_CLOSE":
-									console.log("SOCKET_CLOSE");
-								break;
+            switch (type) {
+                case "SOCKET_OPEN":
+                    console.log("SOCKET_OPEN");
+                    break;
 
-								case "SOCKET_ERROR":
-									console.log("SOCKET_ERROR");
-								break;
+                case "SOCKET_CLOSE":
+                    console.log("SOCKET_CLOSE");
+                    break;
 
-								case "SOCKET_REGISTER":
-									console.log("SOCKET_REGISTER");
-								break;
+                case "SOCKET_ERROR":
+                    console.log("SOCKET_ERROR");
+                    break;
 
-								case "SOCKET_KEEPALIVE":
-									// console.log("SOCKET_KEEPALIVE");
-								break;
+                case "SOCKET_REGISTER":
+                    console.log("SOCKET_REGISTER");
+                    break;
 
-								case "SOCKET_MESSAGE":
-									console.log("SOCKET_MESSAGE");
-									onSocketMessage(data);
-								break;
-							}
-						}
+                case "SOCKET_KEEPALIVE":
+                    // console.log("SOCKET_KEEPALIVE");
+                    break;
 
-						function onSocketMessage(payload){
-							var data = payload.data;
-							var users = data.users;
-							populateTable(users);
+                case "SOCKET_MESSAGE":
+                    // console.log("SOCKET_MESSAGE");
+                    onSocketMessage(data);
+                    break;
+            }
+        }
 
-							updateCanvasFromData(users);						
-						}
-						
-						function populateTable(data){
-							const tableContainer = document.getElementById("tableContainer");
-							tableContainer.innerHTML = "";
+        function onSocketMessage(payload) {
+            if (payload.messageType == "GlobalMessage") {
+                var data = payload.data;
+                var users = data.users;
+                populateTable(users);
 
-							const table = document.createElement("table");
-							table.border = "1";
-							table.style.width = "100%";
-							table.style.borderCollapse = "collapse";
-							table.cellPadding = "6";
-							table.cellSpacing = "0";
+                updateCanvasFromData(users);
+            } else if (payload.messageType == "UserDirectMessage") {
+                console.log(payload.messageType);
+           onUserDirectMessage(payload);
 
-							const columns = ["wsUUID", "userID", "data"];
+            }
+        }
 
-							const thead = document.createElement("thead");
-							const headerRow = document.createElement("tr");
+        function onUserDirectMessage(payload) {
+            showGrowl(payload.data.message, payload.fromUserID);
+        }
 
-							columns.forEach(col => {
-								const th = document.createElement("th");
-								th.textContent = col;
-								headerRow.appendChild(th);
-							});
+        function showGrowl(message, user) {
+            const box = document.createElement("div");
+            box.innerHTML = "<strong>Message from "+user+"</strong><br>"+message;
 
-							thead.appendChild(headerRow);
-							table.appendChild(thead);
+            box.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: #fff;
+                padding: 20px 30px;
+                border-radius: 8px;
+                font-size: 1.2rem;
+                font-family: sans-serif;
+                opacity: 0;
+                transition: opacity .3s;
+                z-index: 9999;
+                text-align: center;
+            `;
 
-							const tbody = document.createElement("tbody");
+            document.body.appendChild(box);
+            requestAnimationFrame(() => (box.style.opacity = "1"));
 
-							Object.entries(data).forEach(([key, value]) => {
-								const row = document.createElement("tr");
+            setTimeout(() => {
+                box.style.opacity = "0";
+                setTimeout(() => box.remove(), 300);
+            }, 5000);
+        }
 
-								columns.forEach(col => {
-									const td = document.createElement("td");
-									if (col === "data" && typeof value[col] === "object" && value[col] !== null) {
-										td.textContent = JSON.stringify(value[col]);
-									} else {
-										td.textContent = value[col] ?? "";
-									}
-									row.appendChild(td);
-								});
+        function populateTable(data) {
+            const tableContainer = document.getElementById("tableContainer");
+            tableContainer.innerHTML = "";
 
-								tbody.appendChild(row);
-							});
+            const table = document.createElement("table");
+            table.border = "1";
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+            table.cellPadding = "6";
+            table.cellSpacing = "0";
 
-							table.appendChild(tbody);
-							tableContainer.appendChild(table);
-						}
+            const columns = ["action", "wsUUID", "userID", "data"];
 
-						
+            const thead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
 
-						function addCanvas(){
-							canvas = document.getElementById("c");
-							canvas.style.width = "100%";
+            columns.forEach(col => {
+                const th = document.createElement("th");
+                th.textContent = col;
+                headerRow.appendChild(th);
+            });
 
-        				 	ctx = canvas.getContext("2d");
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
 
-							ctx.save();
-							ctx.fillStyle = "#f0f0f0";
-							ctx.fillRect(0, 0, canvas.width, canvas.height);
-							ctx.restore();
+            const tbody = document.createElement("tbody");
 
-							window.addEventListener("resize", () => {
-								resizeCanvasToDisplaySize();
-							});
+            Object.entries(data).forEach(([key, value]) => {
+                const actionCell = document.createElement("td");
+                const btn = document.createElement("button");
+                btn.textContent = "PM";
+                btn.onclick = () => onPrivateMessageClicked(value.userID);
 
-							canvas.addEventListener("mousemove", (event) => {
-								const rect = canvas.getBoundingClientRect();
 
-								const xCss = event.clientX - rect.left;
-								const yCss = event.clientY - rect.top;
 
-								// Convert CSS pixels -> canvas pixels
-								const x = xCss * (canvas.width / rect.width);
-								const y = yCss * (canvas.height / rect.height);
 
-								sendMousePosData(x, y);
-							});
-						}
-							
-						function resizeCanvasToDisplaySize() {
-							const dpr = window.devicePixelRatio || 1;
-							const rect = canvas.getBoundingClientRect();
+                actionCell.appendChild(btn);
+                const row = document.createElement("tr");
+                row.appendChild(actionCell);
 
-							canvas.width  = Math.round(rect.width  * dpr);
-							canvas.height = Math.round(rect.height * dpr);
+                columns.forEach(col => {
+                    const td = document.createElement("td");
+                    if (col === "data" && typeof value[col] === "object" && value[col] !== null) {
+                        td.textContent = JSON.stringify(value[col]);
+                    } else {
+                        td.textContent = value[col] ?? "";
+                    }
+                    row.appendChild(td);
+                });
 
-							// So draw calls can use CSS pixels if you want:
-							ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-						}
+                tbody.appendChild(row);
+            });
 
-						function drawDot(x, y, r = 4, color = "red") {
-							ctx.beginPath();
-							ctx.fillStyle = color;
-							ctx.arc(x, y, r, 0, Math.PI * 2);
-							ctx.fill();
-						}
-						function clearDots() {
-							ctx.clearRect(0, 0, canvas.width, canvas.height);
-						}
+            table.appendChild(tbody);
+            tableContainer.appendChild(table);
+        }
 
-						function sendMousePosData(mouseX, mouseY){
-							 var data = {
-								mouseX: mouseX,
-								mouseY: mouseY
-							};
+        function onPrivateMessageClicked(dmTarget) {
+            showModal(dmTarget);
+        }
 
-							
-							frameMessaging.sendGlobalMessage(data);
-						}
 
-						function updateCanvasFromData(users){
-						
-							Object.values(users).forEach(user => {
-								if (user.globalData.data != null) {								
-									var mx = user.globalData.data.mouseX;
-									var my = user.globalData.data.mouseY;
-									drawDot(mx, my, 2, colorFromUUID(user.wsUUID));
-								}
-							});
-						}
+        function showModal(dmTarget) {
+            const overlay = document.createElement("div");
+            overlay.style.position = "fixed";
+            overlay.style.inset = 0;
+            overlay.style.background = "rgba(0,0,0,0.5)";
 
-						function colorFromUUID(uuid) {
-							let hash = 0;
+            const modal = document.createElement("div");
+            modal.style.background = "#fff";
+            modal.style.padding = "20px";
+            modal.style.width = "250px";
+            modal.style.borderRadius = "6px";
+            modal.style.margin = "100px auto";
+            modal.style.position = "relative";
 
-							for (let i = 0; i < uuid.length; i++) {
-								hash = uuid.charCodeAt(i) + ((hash << 5) - hash);
-								hash |= 0; // force 32-bit
-							}
+            const title = document.createElement("div");
+            title.textContent = "Send to: " + dmTarget;
+            title.style.marginBottom = "10px";
+            title.style.fontWeight = "bold";
 
-							const hue = Math.abs(hash) % 360;
-							return "hsl("+hue+", 70%, 50%)";
-						}
-						
-						window.onload = function () {
-							start();
-						};
-					</script>
-				</head>
-				<body>
-					<div id="tableContainer"></div>
-					<div id="canvasContainer">
-						<canvas id="c"></canvas>
-					</div>
-				</body>
-			</html>
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = "modalInput";
+            input.value = "hello!";
+            input.onfocus = () => {
+                if (input.value === "hello!") input.value = "";
+            };
+
+            const okBtn = document.createElement("button");
+            okBtn.textContent = "OK";
+            okBtn.onclick = function (e) {
+
+                const value = document.getElementById("modalInput").value;
+                sendDm(dmTarget, value);
+                closeModal();
+
+            };
+
+
+            modal.appendChild(title);
+            modal.appendChild(input);
+            modal.appendChild(okBtn);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            currentModal = overlay;
+        }
+
+        function closeModal() {
+            if (!currentModal) return;
+            document.body.removeChild(currentModal);
+            currentModal = null;
+        }
+
+        function sendDm(dmTarget, msg) {
+
+            var data = {
+                message: msg
+            }
+
+
+            frameMessaging.sendDMMessage(data, dmTarget);
+        }
+
+
+
+        function addCanvas() {
+            canvas = document.getElementById("c");
+            canvas.style.width = "100%";
+
+            ctx = canvas.getContext("2d");
+
+            ctx.save();
+            ctx.fillStyle = "#f0f0f0";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            window.addEventListener("resize", () => {
+                resizeCanvasToDisplaySize();
+            });
+
+            canvas.addEventListener("mousemove", (event) => {
+                const rect = canvas.getBoundingClientRect();
+
+                const xCss = event.clientX - rect.left;
+                const yCss = event.clientY - rect.top;
+
+                // Convert CSS pixels -> canvas pixels
+                const x = xCss * (canvas.width / rect.width);
+                const y = yCss * (canvas.height / rect.height);
+
+                sendMousePosData(x, y);
+            });
+        }
+
+        function resizeCanvasToDisplaySize() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+
+            canvas.width = Math.round(rect.width * dpr);
+            canvas.height = Math.round(rect.height * dpr);
+
+            // So draw calls can use CSS pixels if you want:
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function drawDot(x, y, r = 4, color = "red") {
+            ctx.beginPath();
+            ctx.fillStyle = color;
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        function clearDots() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function sendMousePosData(mouseX, mouseY) {
+            var data = {
+                mouseX: mouseX,
+                mouseY: mouseY
+            };
+
+
+            frameMessaging.sendGlobalMessage(data);
+        }
+
+        function updateCanvasFromData(users) {
+
+            Object.values(users).forEach(user => {
+                if (user.globalData.data != null) {
+                    var mx = user.globalData.data.mouseX;
+                    var my = user.globalData.data.mouseY;
+                    drawDot(mx, my, 2, colorFromUUID(user.wsUUID));
+                }
+            });
+        }
+
+        function colorFromUUID(uuid) {
+            let hash = 0;
+
+            for (let i = 0; i < uuid.length; i++) {
+                hash = uuid.charCodeAt(i) + ((hash << 5) - hash);
+                hash |= 0; // force 32-bit
+            }
+
+            const hue = Math.abs(hash) % 360;
+            return "hsl(" + hue + ", 70%, 50%)";
+        }
+
+        // function start() {
+        //     console.log("Starting Debug Client ");
+        //     frameMessaging.init();
+        //     frameMessaging.onHostMessage = onHostMessage;
+        //     addCanvas();
+        // }
+
+
+		   function start() {
+        	console.log("Starting Debug Client ");
+        	frameMessaging.onHostMessage = onHostMessage;
+        	frameMessaging.init(window.location.protocol+"//"+window.location.host);
+        	addCanvas();
+        }
+        window.onload = function () {
+			 start();
+            // const s = document.createElement("script");
+
+			// console.log("param "+new URLSearchParams(location.search).get("parentOrigin") );
+            // // s.src = new URLSearchParams(location.search).get("parentOrigin") + "/framecode.js";
+            // s.src = "/framecode.js";
+			
+			// s.onload = () => {
+            //     start();
+            // };
+            // document.head.appendChild(s);
+        };
+    </script>
+</head>
+
+<body>
+    <div id="tableContainer"></div>
+    <div id="canvasContainer">
+        <canvas id="c"></canvas>
+    </div>
+</body>
+
+</html>
 		';
 	}
 }

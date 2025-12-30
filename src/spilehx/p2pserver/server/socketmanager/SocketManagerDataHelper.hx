@@ -1,5 +1,6 @@
 package spilehx.p2pserver.server.socketmanager;
 
+import spilehx.p2pserver.dataobjects.socketmessage.UserDirectMessage;
 import spilehx.p2pserver.dataobjects.socketmessage.GlobalUpdateMessage;
 import haxe.Constraints.Function;
 import spilehx.p2pserver.dataobjects.socketmessage.SocketMessage;
@@ -71,7 +72,8 @@ class SocketManagerDataHelper {
 			var udo:UserDataObject = {
 				wsUUID: wsUUID,
 				userID: "",
-				globalData: {}
+				globalData: {},
+				privateData: {}
 			};
 			users.set(wsUUID, udo);
 		}
@@ -90,6 +92,22 @@ class SocketManagerDataHelper {
 			onRegisterUserMessage(wsUUID, data);
 		} else if (data.messageType == new GlobalUpdateMessage().messageType) {
 			onGlobalUpdateMessage(wsUUID, data);
+		} else if (data.messageType == new UserDirectMessage().messageType) {
+			onUserDirectMessage(wsUUID, data);
+		}
+	}
+
+	private function onUserDirectMessage(wsUUID:String, data:Dynamic) {
+		var msg:UserDirectMessage = new UserDirectMessage();
+
+		msg.fromUserID = data.data.fromUserID;
+		msg.userID = data.data.userID;
+		msg.data = data.data.data; // lol data, data data ffs TODO: fix this
+		var targetUser:UserDataObject = findUserFromUserID(msg.userID);
+		if (targetUser != null) {
+			updateUserPrivateData(targetUser.wsUUID, msg);
+		} else {
+			LOG_ERROR("bad user");
 		}
 	}
 
@@ -112,6 +130,15 @@ class SocketManagerDataHelper {
 		}
 	}
 
+	private function updateUserPrivateData(wsUUID:String, userDirectMessage:UserDirectMessage) {
+		if (users.exists(wsUUID) == true) {
+			var u:UserDataObject = users.get(wsUUID);
+			u.privateData = userDirectMessage;
+			users.set(wsUUID, u);
+			sendToUser(u, userDirectMessage);
+		}
+	}
+
 	private function updateUserGlobalData(wsUUID:String, userGlobalMsg:GlobalUpdateMessage) {
 		if (users.exists(wsUUID) == true) {
 			var u:UserDataObject = users.get(wsUUID);
@@ -122,9 +149,16 @@ class SocketManagerDataHelper {
 	}
 
 	private function getGlobalMessage():GlobalMessage {
+		// scrup private data
 		var globalMessage:GlobalMessage = new GlobalMessage();
 		globalData.connectedUsers = userCount;
-		globalData.users = [for (u in users) u];
+		// globalData.users = [for (u in users) u];
+		globalData.users = new Array<UserDataObject>();
+		for (u in users){
+			u.privateData = {};
+			globalData.users.push(u);
+		}
+
 		globalMessage.data = globalData;
 		return globalMessage;
 	}
@@ -137,6 +171,15 @@ class SocketManagerDataHelper {
 				Reflect.setField(target, field, newValue);
 			}
 		}
+	}
+
+	private function findUserFromUserID(value:String):Null<UserDataObject> {
+		for (u in users) {
+			if (u.userID == value) {
+				return u;
+			}
+		}
+		return null;
 	}
 
 	private function enqueueSendToAll(socketMessage:SocketMessage):Void {
